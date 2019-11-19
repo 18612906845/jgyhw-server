@@ -12,9 +12,9 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
-import java.io.InputStream;
-import java.io.Writer;
+import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,6 +109,21 @@ public class WxGzhMessageUtil {
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static Map parseXml(HttpServletRequest request) throws Exception {
+
+		BufferedReader br = null;
+		String line = null;
+		StringBuffer sb = new StringBuffer();
+		try {
+			br = new BufferedReader(new InputStreamReader((ServletInputStream) request.getInputStream()));
+			while ((line = br.readLine()) != null) {
+				sb.append(line);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		String appMsg=sb.toString();
+		System.out.println("请求参数：" + appMsg);
+
         // 将解析结果存储在HashMap中
         Map map = new HashMap();
 
