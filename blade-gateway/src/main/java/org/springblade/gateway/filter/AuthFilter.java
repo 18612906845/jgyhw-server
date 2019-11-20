@@ -56,6 +56,7 @@ public class AuthFilter implements GlobalFilter, Ordered {
 		if (isSkip(path)) {
 			return chain.filter(exchange);
 		}
+
 		ServerHttpResponse resp = exchange.getResponse();
 		String headerToken = exchange.getRequest().getHeaders().getFirst(AuthProvider.AUTH_KEY);
 		String paramToken = exchange.getRequest().getQueryParams().getFirst(AuthProvider.AUTH_KEY);
