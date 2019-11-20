@@ -109,24 +109,8 @@ public class WxGzhMessageUtil {
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static Map parseXml(HttpServletRequest request) throws Exception {
-
-		BufferedReader br = null;
-		String line = null;
-		StringBuffer sb = new StringBuffer();
-		try {
-			br = new BufferedReader(new InputStreamReader((ServletInputStream) request.getInputStream()));
-			while ((line = br.readLine()) != null) {
-				sb.append(line);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		String appMsg=sb.toString();
-		System.out.println("请求参数：" + appMsg);
-
         // 将解析结果存储在HashMap中
         Map map = new HashMap();
-
         // 从request中取得输入流
         InputStream inputStream = request.getInputStream();
         // 读取输入流

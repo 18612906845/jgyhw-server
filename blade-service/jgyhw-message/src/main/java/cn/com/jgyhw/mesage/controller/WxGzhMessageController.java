@@ -6,14 +6,13 @@ import cn.com.jgyhw.message.vo.TextMessageVo;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Date;
 import java.util.Map;
 
 /**
@@ -21,7 +20,7 @@ import java.util.Map;
  *
  * Created by WangLei on 2019/11/19 0019 19:26
  */
-@Controller
+@RestController
 @RequestMapping("/wxGzhMessage")
 @AllArgsConstructor
 @Slf4j
@@ -101,7 +100,7 @@ public class WxGzhMessageController {
 			TextMessageVo tmVo = new TextMessageVo();
 			tmVo.setToUserName(fromUserName);
 			tmVo.setFromUserName(toUserName);
-			tmVo.setCreateTime(new Date().getTime());
+			tmVo.setCreateTime(System.currentTimeMillis());
 			tmVo.setMsgType(WxGzhMessageUtil.RESP_MESSAGE_TYPE_TEXT);
 
 			if (msgType.equals(WxGzhMessageUtil.REQ_MESSAGE_TYPE_TEXT)) {// 文字消息
