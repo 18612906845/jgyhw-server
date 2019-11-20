@@ -3,9 +3,11 @@ package cn.com.jgyhw.mesage.controller;
 import cn.com.jgyhw.mesage.util.CheckoutUtil;
 import cn.com.jgyhw.mesage.util.WxGzhMessageUtil;
 import cn.com.jgyhw.message.vo.TextMessageVo;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,14 +22,17 @@ import java.util.Map;
  *
  * Created by WangLei on 2019/11/19 0019 19:26
  */
+@Slf4j
+@RefreshScope
 @RestController
 @RequestMapping("/wxGzhMessage")
-@AllArgsConstructor
-@Slf4j
 public class WxGzhMessageController {
 
 	@Autowired
 	private CheckoutUtil checkoutUtil;
+
+	@Value("${jgyhw.wxGzh.attentionGreeting:感谢您的关注}")
+	private String attentionGreeting;
 
 	/**
 	 * 接收微信公众号消息
@@ -67,7 +72,7 @@ public class WxGzhMessageController {
 			log.info("微信公众号Post请求");
 			print = response.getWriter();
 			// 接收消息并返回消息，调用核心服务类接收处理请求
-			String respXml = new String(this.processRequest(request).getBytes("UTF-8"), "ISO-8859-1");
+			String respXml = new String(this.processRequest(request).getBytes("UTF-8"), "UTF-8");// ISO-8859-1 UTF-8
 			print.print(respXml);
 			print.flush();
 			print.close();
@@ -138,7 +143,7 @@ public class WxGzhMessageController {
 					new Thread(wgtmdt, "微信公众号商品链接处理线程" + new Date().getTime()).start();
 					return "success";
 				}*/
-				tmVo.setContent("&lt;a href='http://www.baidu.com'&gt;百度&lt;/a&gt;");
+				tmVo.setContent("<a href='http://www.baidu.com'>百度</a>");
 				// 将文本消息对象转换成xml
 				respXml = WxGzhMessageUtil.textMessageVoToXml(tmVo);
 				return respXml;
@@ -172,15 +177,15 @@ public class WxGzhMessageController {
 				// 事件类型
 				String eventType = (String) requestMap.get("Event");
 				if (eventType.equals(WxGzhMessageUtil.EVENT_TYPE_SUBSCRIBE)) {// 关注
-//					String[] contentArray = ApplicationParamConstant.WX_PARAM_MAP.get("attention_gzh_greeting").split("；");
-//					String contentStr = "";
-//					for(int i=0; i<contentArray.length; i++){
-//						contentStr += contentArray[i] + "\n";
-//						if(i < contentArray.length - 1 && !StringUtils.isBlank(contentStr)){
-//							contentStr += "\n";
-//						}
-//					}
-					tmVo.setContent("&lt;a href='http://www.baidu.com'&gt;百度&lt;/a&gt;");
+					String[] contentArray = attentionGreeting.split("；");
+					String contentStr = "";
+					for(int i=0; i<contentArray.length; i++){
+						contentStr += contentArray[i] + "\n";
+						if(i < contentArray.length - 1 && !StringUtils.isBlank(contentStr)){
+							contentStr += "\n";
+						}
+					}
+					tmVo.setContent(contentStr);
 					// 将文本消息对象转换成xml
 					respXml = WxGzhMessageUtil.textMessageVoToXml(tmVo);
 					return respXml;
