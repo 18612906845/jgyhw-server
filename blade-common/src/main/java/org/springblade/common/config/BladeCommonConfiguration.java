@@ -17,7 +17,15 @@ package org.springblade.common.config;
 
 
 import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.web.client.RestTemplate;
+
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 /**
  * 公共封装包配置类
@@ -28,4 +36,31 @@ import org.springframework.context.annotation.Configuration;
 @AllArgsConstructor
 public class BladeCommonConfiguration {
 
+	/**
+	 * 初始化公共Http请求对象
+	 * @return
+	 */
+	@Bean
+	RestTemplate restTemplate(){
+		SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+		requestFactory.setConnectTimeout(5000);
+		requestFactory.setReadTimeout(5000);
+		// 初始化restTemplate对象
+		RestTemplate restTemplate = new RestTemplate(requestFactory);
+		// 增加UTF-8字符集
+		List<HttpMessageConverter<?>> converterList = restTemplate.getMessageConverters();
+		HttpMessageConverter<?> converterTarget = null;
+		for (HttpMessageConverter<?> item : converterList) {
+			if (item.getClass() == StringHttpMessageConverter.class) {
+				converterTarget = item;
+				break;
+			}
+		}
+		if (converterTarget != null) {
+			converterList.remove(converterTarget);
+		}
+		HttpMessageConverter<?> converter = new StringHttpMessageConverter(StandardCharsets.UTF_8);
+		converterList.add(converter);
+		return restTemplate;
+	}
 }

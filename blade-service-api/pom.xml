@@ -22,6 +22,7 @@
         <module>blade-user-api</module>
         <module>blade-demo-api</module>
         <module>jgyhw-message-api</module>
+        <module>jgyhw-goods-api</module>
     </modules>
 
     <dependencies>

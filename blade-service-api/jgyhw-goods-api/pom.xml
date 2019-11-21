@@ -10,24 +10,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>cn.com.jgyhw</groupId>
-    <artifactId>jgyhw-message-api</artifactId>
+    <artifactId>jgyhw-goods-api</artifactId>
     <version>${jgyhw.project.version}</version>
     <packaging>jar</packaging>
 
-    <dependencies>
-        <!-- dom4j -->
-        <dependency>
-            <groupId>dom4j</groupId>
-            <artifactId>dom4j</artifactId>
-            <version>${dom4j.version}</version>
-        </dependency>
-
-        <!-- xStream -->
-        <dependency>
-            <groupId>com.thoughtworks.xstream</groupId>
-            <artifactId>xstream</artifactId>
-            <version>${xstream.version}</version>
-        </dependency>
-    </dependencies>
 
 </project>

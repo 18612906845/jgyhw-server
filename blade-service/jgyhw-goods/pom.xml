@@ -3,30 +3,32 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>blade-service-api</artifactId>
+        <artifactId>blade-service</artifactId>
         <groupId>org.springblade</groupId>
         <version>2.5.4</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>cn.com.jgyhw</groupId>
-    <artifactId>jgyhw-message-api</artifactId>
+    <artifactId>jgyhw-goods</artifactId>
     <version>${jgyhw.project.version}</version>
     <packaging>jar</packaging>
 
     <dependencies>
-        <!-- dom4j -->
         <dependency>
-            <groupId>dom4j</groupId>
-            <artifactId>dom4j</artifactId>
-            <version>${dom4j.version}</version>
+            <groupId>org.springblade</groupId>
+            <artifactId>blade-core-boot</artifactId>
+            <version>${blade.tool.version}</version>
         </dependency>
-
-        <!-- xStream -->
         <dependency>
-            <groupId>com.thoughtworks.xstream</groupId>
-            <artifactId>xstream</artifactId>
-            <version>${xstream.version}</version>
+            <groupId>org.springblade</groupId>
+            <artifactId>blade-core-swagger</artifactId>
+            <version>${blade.tool.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.com.jgyhw</groupId>
+            <artifactId>jgyhw-goods-api</artifactId>
+            <version>${jgyhw.project.version}</version>
         </dependency>
     </dependencies>
 
