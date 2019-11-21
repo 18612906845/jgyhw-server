@@ -15,11 +15,65 @@
  */
 package org.springblade.common.tool;
 
+import java.text.DecimalFormat;
+
 /**
  * 通用工具类
  *
  * @author Chill
  */
 public class CommonUtil {
+
+	/**
+	 * 计算联盟返利
+	 *
+	 * @param commision 佣金
+	 * @param commisionRatio 返利比例
+	 * @return
+	 */
+	public static Double rebateCompute(Double commision, Double commisionRatio){
+		if(commision == null || commisionRatio == null){
+			return 0.0;
+		}
+		Double rebateDouble = commision * (commisionRatio / 100.00);
+		//保留2位小数
+		DecimalFormat df = new DecimalFormat("#.00");
+		Double rebate = Double.valueOf(df.format(rebateDouble));
+		return rebate;
+	}
+
+	/**
+	 * 计算用户返利
+	 *
+	 * @param unitPrice 商品单价
+	 * @param commisionRatio 佣金比例
+	 * @param rebateScale 返利比例
+	 * @return
+	 */
+	public static Double rebateCompute(Double unitPrice, Double commisionRatio, Integer rebateScale){
+		if(unitPrice == null || commisionRatio == null || rebateScale == null){
+			return 0.0;
+		}
+		Double rebateDouble = (commisionRatio / 100.00) * unitPrice * (rebateScale / 100.00);
+		//保留2位小数
+		DecimalFormat df = new DecimalFormat("#.00");
+		Double rebate = Double.valueOf(df.format(rebateDouble));
+		return rebate;
+	}
+
+	/**
+	 * 格式化双精度数据
+	 *
+	 * @param source 元数据
+	 * @return
+	 */
+	public static Double formatDouble(Double source){
+		if(source == null){
+			source = 0.00;
+		}
+		//保留2位小数
+		DecimalFormat df = new DecimalFormat("#.00");
+		return Double.valueOf(df.format(source));
+	}
 
 }
