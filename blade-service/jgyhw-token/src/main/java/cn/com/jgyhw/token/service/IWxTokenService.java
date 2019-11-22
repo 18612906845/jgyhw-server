@@ -1,4 +1,4 @@
-package cn.com.jgyhw.task.service;
+package cn.com.jgyhw.token.service;
 
 /**
  * 微信令牌服务类

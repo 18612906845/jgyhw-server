@@ -23,7 +23,7 @@
         <module>blade-demo-api</module>
         <module>jgyhw-message-api</module>
         <module>jgyhw-goods-api</module>
-        <module>jgyhw-task-api</module>
+        <module>jgyhw-token-api</module>
     </modules>
 
     <dependencies>

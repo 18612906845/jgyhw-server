@@ -1,6 +1,6 @@
-package cn.com.jgyhw.task.service.impl;
+package cn.com.jgyhw.token.service.impl;
 
-import cn.com.jgyhw.task.service.IWxTokenService;
+import cn.com.jgyhw.token.service.IWxTokenService;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

@@ -1,6 +1,6 @@
-package cn.com.jgyhw.task.controller;
+package cn.com.jgyhw.token.controller;
 
-import cn.com.jgyhw.task.service.IWxTokenService;
+import cn.com.jgyhw.token.service.IWxTokenService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiOperationSupport;

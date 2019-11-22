@@ -48,9 +48,9 @@ public interface JgyhwConstant {
 	String APPLICATION_GOODS_NAME = "jgyhw-goods";
 
 	/**
-	 * 任务服务名称
+	 * 令牌服务名称
 	 */
-	String APPLICATION_TASK_NAME = "jgyhw-task";
+	String APPLICATION_TOKEN_NAME = "jgyhw-token";
 
 	/**
 	 * 京东商品Redis Key前缀
