@@ -1,7 +1,9 @@
 package cn.com.jgyhw.message.vo;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+import lombok.Data;
 
+@Data
 @XStreamAlias("Image")
 public class ImageVo {
 
@@ -10,12 +12,4 @@ public class ImageVo {
      */
     @XStreamAlias("MediaId")
     private String MediaId;
-
-    public String getMediaId() {
-        return MediaId;
-    }
-
-    public void setMediaId(String mediaId) {
-        MediaId = mediaId;
-    }
 }

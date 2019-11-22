@@ -28,7 +28,7 @@ public class JdGoodsServiceRedisImpl implements IJdGoodsService {
 	private int jdGoodsPastDay;
 
 	@Autowired
-	StringRedisTemplate stringRedisTemplate;
+	private StringRedisTemplate stringRedisTemplate;
 
 	/**
 	 * 保存京东商品信息

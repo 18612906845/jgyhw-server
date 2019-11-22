@@ -24,6 +24,7 @@
         <module>blade-demo</module>
         <module>jgyhw-message</module>
         <module>jgyhw-goods</module>
+        <module>jgyhw-task</module>
     </modules>
 
     <dependencies>

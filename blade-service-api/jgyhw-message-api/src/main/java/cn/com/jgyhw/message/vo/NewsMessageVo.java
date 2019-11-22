@@ -1,10 +1,12 @@
 package cn.com.jgyhw.message.vo;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+import lombok.Data;
 
 /**
  * 回复消息之图文消息
  */
+@Data
 @XStreamAlias("NewsMessage")
 public class NewsMessageVo extends BaseMessageVo {
 
@@ -19,20 +21,4 @@ public class NewsMessageVo extends BaseMessageVo {
      */
     @XStreamAlias("Articles")
     private String Articles;
-
-    public String getArticleCount() {
-        return ArticleCount;
-    }
-
-    public void setArticleCount(String articleCount) {
-        ArticleCount = articleCount;
-    }
-
-    public String getArticles() {
-        return Articles;
-    }
-
-    public void setArticles(String articles) {
-        Articles = articles;
-    }
 }

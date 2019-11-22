@@ -6,8 +6,7 @@ import com.thoughtworks.xstream.core.util.QuickWriter;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import com.thoughtworks.xstream.io.xml.XppDriver;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
@@ -22,16 +21,8 @@ import java.util.Map;
 /**
  * 微信接收、被动回复消息工具类
  */
+@Slf4j
 public class WxGzhMessageUtil {
-
-    private static Logger LOGGER = LogManager.getLogger(WxGzhMessageUtil.class);
-
-    public static final String ANSWER_MSG_TYPE_TEXT = "text";//回复文本类型消息
-    public static final String ANSWER_MSG_TYPE_IMAGE = "image";//回复图片类型消息
-    public static final String ANSWER_MSG_TYPE_VOICE = "voice";//回复语音类型消息
-    public static final String ANSWER_MSG_TYPE_VIDEO = "video";//回复视频类型消息
-    public static final String ANSWER_MSG_TYPE_MUSIC = "music";//回复音乐类型消息
-    public static final String ANSWER_MSG_TYPE_NEWS = "news";//回复图文类型消息
 
     public static final String RESP_MESSAGE_TYPE_TEXT = "text";
     public static final Object REQ_MESSAGE_TYPE_TEXT = "text";
@@ -124,7 +115,7 @@ public class WxGzhMessageUtil {
         for (Element e : elementList){
             map.put(e.getName(), e.getText());
         }
-        LOGGER.info("得到Xml元素Map：" + map.toString());
+        log.info("得到Xml元素Map：" + map.toString());
         // 释放资源
         inputStream.close();
         inputStream = null;
