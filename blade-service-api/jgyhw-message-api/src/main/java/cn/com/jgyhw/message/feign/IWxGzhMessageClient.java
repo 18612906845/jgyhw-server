@@ -15,7 +15,7 @@ import java.util.Date;
  */
 @FeignClient(
 	value = JgyhwConstant.APPLICATION_MESSAGE_NAME,
-	fallback = IWxGzhMessageClient.class
+	fallback = IWxGzhMessageClientFallback.class
 )
 public interface IWxGzhMessageClient {
 

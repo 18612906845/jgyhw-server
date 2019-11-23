@@ -34,7 +34,7 @@ public class IWxGzhMessageClientFallback implements IWxGzhMessageClient {
 	 * @return
 	 */
 	@Override
-	public R sendAffirmOrderWxMessage(String openIdGzh, String orderId, String orderStatus) {
+	public R sendAffirmOrderWxMessage(@RequestParam("openIdGzh") String openIdGzh, @RequestParam("orderId") String orderId, @RequestParam("orderStatus") String orderStatus) {
 		return R.fail(400,"发送确认订单微信消息Feign失败");
 	}
 
@@ -46,7 +46,7 @@ public class IWxGzhMessageClientFallback implements IWxGzhMessageClient {
 	 * @param orderFinishTime 订单完成时间
 	 */
 	@Override
-	public R sendFinishOrderWxMessage(String openIdGzh, String orderId, Date orderFinishTime) {
+	public R sendFinishOrderWxMessage(@RequestParam("openIdGzh") String openIdGzh, @RequestParam("orderId") String orderId, @RequestParam("orderFinishTime") Date orderFinishTime) {
 		return R.fail(400,"发送完成订单微信消息Feign失败");
 	}
 
@@ -58,7 +58,7 @@ public class IWxGzhMessageClientFallback implements IWxGzhMessageClient {
 	 * @param returnMoney      返现金额
 	 */
 	@Override
-	public R sendRebateWxMessage(String openIdGzh, String returnMoneyCause, double returnMoney) {
+	public R sendRebateWxMessage(@RequestParam("openIdGzh") String openIdGzh, @RequestParam("returnMoneyCause") String returnMoneyCause, @RequestParam("returnMoney") double returnMoney) {
 		return R.fail(400,"发送获得返现微信消息Feign失败");
 	}
 
@@ -70,7 +70,7 @@ public class IWxGzhMessageClientFallback implements IWxGzhMessageClient {
 	 * @param payTime   支付时间
 	 */
 	@Override
-	public R sendPaySuccessWxMessage(String openIdGzh, Double payMoney, Date payTime) {
+	public R sendPaySuccessWxMessage(@RequestParam("openIdGzh") String openIdGzh, @RequestParam("payMoney") Double payMoney, @RequestParam("payTime") Date payTime) {
 		return R.fail(400,"发送支付成功消息Feign失败");
 	}
 }

@@ -58,6 +58,11 @@ public interface JgyhwConstant {
 	String APPLICATION_ORDER_NAME = "jgyhw-order";
 
 	/**
+	 * 账本服务名称
+	 */
+	String APPLICATION_ACCOUNT_NAME = "jgyhw-account";
+
+	/**
 	 * 京东商品Redis Key前缀
 	 */
 	String JD_GOODS_KEY_PREFIX = "jdGoodsKey:";

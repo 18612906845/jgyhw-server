@@ -13,6 +13,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class GoodsApplication {
 
 	public static void main(String[] args) {
-		BladeApplication.run(JgyhwConstant.APPLICATION_GOODS_NAME, GoodsApplication.class, args);
+		BladeApplication.run(JgyhwConstant.APPLICATION_ACCOUNT_NAME, GoodsApplication.class, args);
 	}
 }
