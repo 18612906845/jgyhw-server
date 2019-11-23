@@ -68,12 +68,11 @@ public class GetAuthorizationController {
 			url = url.replaceAll("ACCESS_TOKEN", accessTokenOpenIdMap.get("accessToken"));
 			url = url.replaceAll("OPENID", accessTokenOpenIdMap.get("openId"));
 
-			String resp = restTemplate.getForObject(url, String.class);
-			log.info("通过临时凭证Code获取微信公众号用户信息结果：" + resp);
+			JSONObject respJsonObj = restTemplate.getForObject(url, JSONObject.class);
+			log.info("通过临时凭证Code获取微信公众号用户信息结果：" + respJsonObj);
 
-			if (StringUtils.isNotBlank(resp)) {
-				JSONObject respJsonObj = JSONObject.parseObject(resp);
-				if (StringUtils.isNotBlank(respJsonObj.getString("errcode"))) {
+			if (respJsonObj != null) {
+				if (respJsonObj.containsKey("errcode")) {
 					log.error("通过临时凭证Code获取微信公众号用户信息，错误编号：" + respJsonObj.getString("errcode") + "；错误描述：" + respJsonObj.getString("errmsg"));
 					return R.status(false);
 				} else {
@@ -127,16 +126,15 @@ public class GetAuthorizationController {
         url = url.replaceAll("SECRET", wxGzhAppSecret);
         url = url.replaceAll("CODE", code);
 
-		String resp = restTemplate.getForObject(url, String.class);
-		log.info("根据临时凭证Code获取微信公众号access_token和openid结果：" + resp);
-		if(StringUtils.isNotBlank(resp)){
-			JSONObject respJsonObj = JSONObject.parseObject(resp);
-			if(StringUtils.isNotBlank(respJsonObj.getString("errcode"))){
-				log.error("根据临时凭证Code获取微信公众号access_token和openid，错误编号：" + respJsonObj.getString("errcode") + "；错误描述：" + respJsonObj.getString("errmsg"));
-				resultMap = null;
-			}else{
+		JSONObject respJsonObj = restTemplate.getForObject(url, JSONObject.class);
+		log.info("根据临时凭证Code获取微信公众号access_token和openid结果：" + respJsonObj);
+		if(respJsonObj != null){
+			if(respJsonObj.containsKey("access_token") && respJsonObj.containsKey("openid")){
 				resultMap.put("accessToken", respJsonObj.getString("access_token"));
 				resultMap.put("openId", respJsonObj.getString("openid"));
+			}else{
+				log.error("根据临时凭证Code获取微信公众号access_token和openid，错误编号：" + respJsonObj.getString("errcode") + "；错误描述：" + respJsonObj.getString("errmsg"));
+				resultMap = null;
 			}
 		}else{
 			log.error("根据临时凭证Code获取微信公众号access_token和openid结果为空");

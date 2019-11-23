@@ -32,23 +32,19 @@ public class WxUserController {
 	private IWxUserService wxUserService;
 
 	/**
-	 * 根据公众号标识获取开放平台唯一标识
+	 * 根据公众号标识获取微信用户
 	 *
 	 * @param openIdGzh 公众号标识
 	 * @return
 	 */
-	@GetMapping("/findUnionIdByOpenIdGzh")
+	@GetMapping("/findWxUserByOpenIdGzh")
 	@ApiOperationSupport(order = 1)
-	@ApiOperation(value = "根据公众号标识获取开放平台唯一标识", notes = "")
-	public R<String> findUnionIdByOpenIdGzh(@ApiParam(value = "公众号标识", required = true) String openIdGzh){
+	@ApiOperation(value = "根据公众号标识获取微信用户", notes = "")
+	public R<WxUser> findWxUserByOpenIdGzh(@ApiParam(value = "公众号标识", required = true) String openIdGzh){
 		if(StringUtils.isBlank(openIdGzh)){
 			return R.data(null);
 		}
 		WxUser wu = wxUserService.getOne(Wrappers.<WxUser>lambdaQuery().eq(WxUser::getOpenIdGzh, openIdGzh));
-		if(wu == null){
-			return R.data(null);
-		}else{
-			return R.data(wu.getUnionId());
-		}
+		return R.data(wu);
 	}
 }

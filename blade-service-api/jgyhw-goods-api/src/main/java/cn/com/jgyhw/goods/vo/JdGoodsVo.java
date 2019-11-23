@@ -1,4 +1,4 @@
-package cn.com.jgyhw.goods;
+package cn.com.jgyhw.goods.vo;
 
 import cn.com.jgyhw.goods.entity.JdGoods;
 import io.swagger.annotations.ApiModel;

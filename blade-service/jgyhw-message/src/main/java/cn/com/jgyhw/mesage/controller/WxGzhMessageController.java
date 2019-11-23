@@ -1,13 +1,23 @@
 package cn.com.jgyhw.mesage.controller;
 
+import cn.com.jgyhw.goods.feign.IJdGoodsClient;
+import cn.com.jgyhw.mesage.service.IWxGzhMessageService;
+import cn.com.jgyhw.mesage.thread.WxGzhTextMessageDisposeThread;
 import cn.com.jgyhw.mesage.util.CheckoutUtil;
 import cn.com.jgyhw.mesage.util.WxGzhMessageUtil;
 import cn.com.jgyhw.message.vo.TextMessageVo;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiOperationSupport;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springblade.core.tool.api.R;
+import org.springblade.system.user.entity.WxUser;
+import org.springblade.system.user.feign.IWxUserClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -15,7 +25,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Date;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 微信公众号消息处理
@@ -28,11 +41,35 @@ import java.util.Map;
 @RequestMapping("/wxGzhMessage")
 public class WxGzhMessageController {
 
+	@Value("${jgyhw.wxGzh.attentionGreeting:感谢您的关注}")
+	private String attentionGreeting;
+
+	@Value("${jgyhw.wxGzh.loginMessageContent:}")
+	private String loginMessageContent;
+
+	@Value("${jgyhw.jd.regexpVerifyJdGoodsPageUrl}")
+	private String regexpVerifyJdGoodsPageUrl;
+
+	@Value("${jgyhw.jd.regexpAllNumber}")
+	private String regexpAllNumber;
+
+	@Value("${jgyhw.jd.regexpExtractUrlJdGoodsId}")
+	private String regexpExtractUrlJdGoodsId;
+
+	@Value("${jgyhw.system.returnMoneyShare}")
+	private Integer systemReturnMoneyShare;
+
 	@Autowired
 	private CheckoutUtil checkoutUtil;
 
-	@Value("${jgyhw.wxGzh.attentionGreeting:感谢您的关注}")
-	private String attentionGreeting;
+	@Autowired
+	private IWxUserClient wxUserClient;
+
+	@Autowired
+	private IJdGoodsClient jdGoodsClient;
+
+	@Autowired
+	private IWxGzhMessageService wxGzhMessageService;
 
 	/**
 	 * 接收微信公众号消息
@@ -42,6 +79,8 @@ public class WxGzhMessageController {
 	 * @throws IOException
 	 */
 	@RequestMapping("/receiveMessage")
+	@ApiOperationSupport(order = 1)
+	@ApiOperation(value = "接收微信公众号消息", notes = "")
 	public void receiveWxMessage(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		log.info("接收微信公众号消息开始--> 开始时间毫秒：" + System.currentTimeMillis());
 		boolean isGet = request.getMethod().toLowerCase().equals("get");
@@ -81,6 +120,22 @@ public class WxGzhMessageController {
 	}
 
 	/**
+	 * 发送文本消息
+	 *
+	 * @param toUser 接收者微信公众号标识
+	 * @param content 消息内容
+	 * @return
+	 */
+	@GetMapping("/sendTextMessage")
+	@ApiOperationSupport(order = 2)
+	@ApiOperation(value = "发送文本消息", notes = "")
+	public R sendTextMessage(@ApiParam(value = "商品编号", required = true) String toUser,
+							 @ApiParam(value = "商品编号", required = true) String content){
+		wxGzhMessageService.sendTextMessage(toUser, content);
+		return R.status(true);
+	}
+
+	/**
 	 * 处理消息分发
 	 *
 	 * @param request 请求参数
@@ -111,43 +166,41 @@ public class WxGzhMessageController {
 			if (msgType.equals(WxGzhMessageUtil.REQ_MESSAGE_TYPE_TEXT)) {// 文字消息
 				String content = (String) requestMap.get("Content");
 				content.trim();
-				log.info("开始处理文字消息--> 文字内容：" + content);
-				// 判断用户是否登陆
-				/*WxUser wu = wxUserService.queryWxUserByOpenIdGzh(fromUserName);
-				if(wu == null || StringUtils.isBlank(wu.getUnionId())){// 用户不存在或者没有开放平台唯一标识
-					// 发送登陆文本消息
-					String messageText = "您好，请先点击公众号菜单【消息订阅】登陆后，重新发送商品链接获取优惠券/返现信息";
-					textMessagePojo.setContent(messageText);
+				log.info("处理文字消息，文字内容：" + content);
+				//验证文字是否是全部数字
+				String goodsId = "";
+				Pattern numberPattern = Pattern.compile(regexpAllNumber);
+				//验证文字是否是网址
+				Pattern urlPattern = Pattern.compile(regexpVerifyJdGoodsPageUrl);
+				if(numberPattern.matcher(content).matches()){
+					goodsId = content;
+				}else if(urlPattern.matcher(content).matches()){
+					// 提取URL里的商品编号
+					Pattern pattern = Pattern.compile(regexpExtractUrlJdGoodsId);
+					Matcher m = pattern.matcher(content);
+					while (m.find()) {
+						goodsId += m.group(1);
+					}
+				}
+				if(StringUtils.isNotBlank(goodsId)){
+					// 开启线程处理消息
+					WxGzhTextMessageDisposeThread wgtmdt = new WxGzhTextMessageDisposeThread();
+					wgtmdt.setGoodsId(goodsId);
+					wgtmdt.setReceiveGzhOpenId(fromUserName);
+					wgtmdt.setLoginMessageContent(loginMessageContent);
+					wgtmdt.setSystemReturnMoneyShare(systemReturnMoneyShare);
+					wgtmdt.setWxUserClient(wxUserClient);
+					wgtmdt.setJdGoodsClient(jdGoodsClient);
+					wgtmdt.setWxGzhMessageService(wxGzhMessageService);
+					new Thread(wgtmdt, "文字消息处理线程" + System.currentTimeMillis()).start();
+					// 直接返回成功
+					return "success";
+				}else{
+					tmVo.setContent("无法识别【" + content + "】，请发送正确的京东商品编号或商品链接获取优惠信息");
 					// 将文本消息对象转换成xml
 					respXml = WxGzhMessageUtil.textMessageVoToXml(tmVo);
 					return respXml;
 				}
-				// 判断消息是否是含有京东、淘宝、拼多多网址的信息
-				if(content.indexOf("jd.com") == -1 && content.indexOf("tb.cn") == -1 && content.indexOf("yangkeduo.com") == -1){
-					String messageText = ApplicationParamConstant.WX_PARAM_MAP.get("wx_gzh_auto_reply_text_message");
-					textMessagePojo.setContent(messageText);
-					// 将文本消息对象转换成xml
-					respXml = WxGzhMessageUtil.textMessageVoToXml(tmVo);
-					return respXml;
-				}else{
-					WxGzhTextMessageDisposeThread wgtmdt = new WxGzhTextMessageDisposeThread();
-					wgtmdt.setContent(content);
-					wgtmdt.setReceiveGzhOpenId(fromUserName);
-					wgtmdt.setLoginKey(wu.getId());
-					wgtmdt.setJdGoodsDiscountsService(jdGoodsDiscountsService);
-					wgtmdt.setJdSearchService(jdSearchService);
-					wgtmdt.setWxGzhMessageSendService(wxGzhMessageSendService);
-					wgtmdt.setPddGoodsDiscountsService(pddGoodsDiscountsService);
-					wgtmdt.setPddSearchService(pddSearchService);
-					wgtmdt.setTbSearchService(tbSearchService);
-					new Thread(wgtmdt, "微信公众号商品链接处理线程" + new Date().getTime()).start();
-					return "success";
-				}*/
-				tmVo.setContent("<a href='http://www.baidu.com'>百度</a>");
-				// 将文本消息对象转换成xml
-				respXml = WxGzhMessageUtil.textMessageVoToXml(tmVo);
-				return respXml;
-//				return "success";
 			}else if (msgType.equals(WxGzhMessageUtil.REQ_MESSAGE_TYPE_IMAGE)) {// 图片消息
 				tmVo.setContent("敢发张自拍照让我看看嘛/::P");
 				// 将文本消息对象转换成xml
@@ -207,5 +260,6 @@ public class WxGzhMessageController {
 			return "success";
 		}
 	}
+
 
 }

@@ -2,7 +2,7 @@ package cm.com.jgyhw.goods.controller;
 
 import cm.com.jgyhw.goods.service.IJdGoodsApiService;
 import cm.com.jgyhw.goods.service.IJdGoodsService;
-import cn.com.jgyhw.goods.JdGoodsVo;
+import cn.com.jgyhw.goods.vo.JdGoodsVo;
 import cn.com.jgyhw.goods.entity.JdGoods;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

@@ -61,12 +61,12 @@ public class WxTokenServiceImpl implements IWxTokenService {
 		JSONObject respJsonObj = restTemplate.getForObject(url, JSONObject.class);
 		log.info("定时更新微信公众号服务Api令牌结果：" + respJsonObj);
 		if(respJsonObj != null){
-			if(StringUtils.isNotBlank(respJsonObj.getString("errcode"))){
-				log.error("定时更新微信公众号服务Api令牌，错误编号：" + respJsonObj.getString("errcode") + "；错误描述：" + respJsonObj.getString("errmsg"));
-			}else{
+			if(respJsonObj.containsKey("access_token")){
 				String accessToken = respJsonObj.getString("access_token");
 				stringRedisTemplate.opsForValue().set(JgyhwConstant.WX_GZH_SERVICE_API_TOKEN_KEY_PREFIX.concat(wxGzhAppId), accessToken,2, TimeUnit.HOURS);
 				log.info("定时更新微信公众号服务Api令牌，保存Redis成功：" + accessToken);
+			}else{
+				log.error("定时更新微信公众号服务Api令牌，错误编号：" + respJsonObj.getString("errcode") + "；错误描述：" + respJsonObj.getString("errmsg"));
 			}
 		}else{
 			log.error("定时更新微信公众号服务Api令牌结果为空");
@@ -91,12 +91,12 @@ public class WxTokenServiceImpl implements IWxTokenService {
 		JSONObject respJsonObj = restTemplate.getForObject(url, JSONObject.class);
 		log.info("定时更新微信小程序服务Api令牌结果：" + respJsonObj);
 		if(respJsonObj != null){
-			if(StringUtils.isNotBlank(respJsonObj.getString("errcode"))){
-				log.error("定时更新微信小程序服务Api令牌，错误编号：" + respJsonObj.getString("errcode") + "；错误描述：" + respJsonObj.getString("errmsg"));
-			}else{
+			if(respJsonObj.containsKey("access_token")){
 				String accessToken = respJsonObj.getString("access_token");
 				stringRedisTemplate.opsForValue().set(JgyhwConstant.WX_XCX_SERVICE_API_TOKEN_KEY_PREFIX.concat(wxXcxAppId), accessToken,2, TimeUnit.HOURS);
 				log.info("定时更新微信小程序服务Api令牌，保存Redis成功：" + accessToken);
+			}else{
+				log.error("定时更新微信小程序服务Api令牌，错误编号：" + respJsonObj.getString("errcode") + "；错误描述：" + respJsonObj.getString("errmsg"));
 			}
 		}else{
 			log.error("定时更新微信小程序服务Api令牌结果为空");

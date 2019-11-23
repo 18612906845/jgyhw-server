@@ -14,6 +14,7 @@ import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
@@ -28,10 +29,10 @@ import java.util.List;
 @Service
 public class WxGzhMessageServiceImpl implements IWxGzhMessageService {
 
-	@Value("${jgyhw.gzh.sendCustomMessageUrl:}")
+	@Value("${jgyhw.wxGzh.sendCustomMessageUrl:}")
 	private String wxGzhSendCustomMessageUrl;
 
-	@Value("${jgyhw.gzh.sendTemplateMessageUrl:}")
+	@Value("${jgyhw.wxGzh.sendTemplateMessageUrl:}")
 	private String wxGzhSendTemplateMessageUrl;
 
 	@Value("${jgyhw.wxGzh.appId:}")
@@ -66,7 +67,7 @@ public class WxGzhMessageServiceImpl implements IWxGzhMessageService {
 		}
 		// 设置请求头
 		HttpHeaders httpHeaders = new HttpHeaders();
-		httpHeaders.add("Content-Type", "application/json;charset=utf-8");
+		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 		// 设置请求参数
 		JSONObject textJsonObj = new JSONObject();
 		textJsonObj.put("content", content);
@@ -76,10 +77,10 @@ public class WxGzhMessageServiceImpl implements IWxGzhMessageService {
 		postDataJson.put("msgtype", JgyhwConstant.ANSWER_MSG_TYPE_TEXT);
 		postDataJson.put("text", textJsonObj);
 		// 将请求头和请求参数设置到HttpEntity中
-		HttpEntity<String> httpEntity = new HttpEntity<>(postDataJson.toJSONString(), httpHeaders);
+		HttpEntity httpEntity = new HttpEntity(postDataJson, httpHeaders);
 
-		String resp = restTemplate.postForObject(url, httpEntity, String.class);
-		log.info("文本客服消息发送结果：" + resp);
+		JSONObject respJsonObj = restTemplate.postForObject(url, httpEntity, JSONObject.class);
+		log.info("文本客服消息发送结果：" + respJsonObj);
 	}
 
 	/**
@@ -105,7 +106,7 @@ public class WxGzhMessageServiceImpl implements IWxGzhMessageService {
 		}
 		// 设置请求头
 		HttpHeaders httpHeaders = new HttpHeaders();
-		httpHeaders.add("Content-Type", "application/json;charset=utf-8");
+		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 		// 设置请求参数
 		JSONArray articlesJsonArray = new JSONArray();
 		for(ArticleVo av : articleVoList){
@@ -123,10 +124,10 @@ public class WxGzhMessageServiceImpl implements IWxGzhMessageService {
 		postDataJson.put("msgtype", JgyhwConstant.ANSWER_MSG_TYPE_NEWS);
 		postDataJson.put("news", newsJsonObj);
 		// 将请求头和请求参数设置到HttpEntity中
-		HttpEntity<String> httpEntity = new HttpEntity<>(postDataJson.toJSONString(), httpHeaders);
+		HttpEntity httpEntity = new HttpEntity(postDataJson, httpHeaders);
 
-		String resp = restTemplate.postForObject(url, httpEntity, String.class);
-		log.info("图文客服消息发送结果：" + resp);
+		JSONObject respJsonObj = restTemplate.postForObject(url, httpEntity, JSONObject.class);
+		log.info("图文客服消息发送结果：" + respJsonObj);
 	}
 
 	/**
@@ -151,13 +152,12 @@ public class WxGzhMessageServiceImpl implements IWxGzhMessageService {
 		}
 		// 设置请求头
 		HttpHeaders httpHeaders = new HttpHeaders();
-		httpHeaders.add("Content-Type", "application/json;charset=utf-8");
+		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 		// 将请求头和请求参数设置到HttpEntity中
-		String postDataJson = JSONObject.toJSONString(templateMessageVo);
-		HttpEntity<String> httpEntity = new HttpEntity<>(postDataJson, httpHeaders);
+		HttpEntity httpEntity = new HttpEntity(templateMessageVo, httpHeaders);
 
-		String resp = restTemplate.postForObject(url, httpEntity, String.class);
-		log.info("模版消息发送结果：" + resp);
+		JSONObject respJsonObj = restTemplate.postForObject(url, httpEntity, JSONObject.class);
+		log.info("模版消息发送结果：" + respJsonObj);
 	}
 
 
