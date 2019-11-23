@@ -5,14 +5,15 @@ import cn.com.jgyhw.mesage.service.IWxGzhMessageService;
 import cn.com.jgyhw.mesage.thread.WxGzhTextMessageDisposeThread;
 import cn.com.jgyhw.mesage.util.CheckoutUtil;
 import cn.com.jgyhw.mesage.util.WxGzhMessageUtil;
+import cn.com.jgyhw.message.vo.TemplateMessageVo;
 import cn.com.jgyhw.message.vo.TextMessageVo;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiOperationSupport;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springblade.common.tool.CommonUtil;
 import org.springblade.core.tool.api.R;
-import org.springblade.system.user.entity.WxUser;
 import org.springblade.system.user.feign.IWxUserClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -58,6 +60,18 @@ public class WxGzhMessageController {
 
 	@Value("${jgyhw.system.returnMoneyShare}")
 	private Integer systemReturnMoneyShare;
+
+	@Value("${jgyhw.wxGzh.templateMessageIdDdqr}")
+	private String wxGzhTemplateMessageIdDdqr;
+
+	@Value("${jgyhw.wxGzh.templateMessageIdDdwc}")
+	private String wxGzhTemplateMessageIdDdwc;
+
+	@Value("${jgyhw.wxGzh.templateMessageIdHdfx}")
+	private String wxGzhTemplateMessageIdHdfx;
+
+	@Value("${jgyhw.wxGzh.templateMessageIdTxcg}")
+	private String wxGzhTemplateMessageIdTxcg;
 
 	@Autowired
 	private CheckoutUtil checkoutUtil;
@@ -132,6 +146,167 @@ public class WxGzhMessageController {
 	public R sendTextMessage(@ApiParam(value = "商品编号", required = true) String toUser,
 							 @ApiParam(value = "商品编号", required = true) String content){
 		wxGzhMessageService.sendTextMessage(toUser, content);
+		return R.status(true);
+	}
+
+	/**
+	 * 发送确认订单微信消息
+	 *
+	 * @param openIdGzh 微信用户公众号标识
+	 * @param orderId 订单编号
+	 * @param orderStatus 订单状态
+	 * @return
+	 */
+	@GetMapping("/sendAffirmOrderWxMessage")
+	@ApiOperationSupport(order = 3)
+	@ApiOperation(value = "发送模版消息到公众号", notes = "")
+	public R sendAffirmOrderWxMessage(@ApiParam(value = "微信用户公众号标识", required = true) String openIdGzh,
+									  @ApiParam(value = "订单编号", required = true) String orderId,
+									  @ApiParam(value = "订单状态", required = true) String orderStatus){
+		TemplateMessageVo tmVo = new TemplateMessageVo();
+
+		tmVo.setTouser(openIdGzh);
+		tmVo.setTemplate_id(wxGzhTemplateMessageIdDdqr);
+		Map<String, Object> dataMap = new HashMap<>();
+		Map<String, Object> firstMap = new HashMap<>();
+		firstMap.put("value", "您好，已确认新订单");
+		dataMap.put("first", firstMap);
+
+		Map<String, Object> keyword1Map = new HashMap<>();
+		keyword1Map.put("value", orderId);
+		dataMap.put("keyword1", keyword1Map);
+
+		Map<String, Object> keyword2Map = new HashMap<>();
+		keyword2Map.put("value", orderStatus);
+		keyword2Map.put("color", "#008000");
+		dataMap.put("keyword2", keyword2Map);
+
+		Map<String, Object> keyword3Map = new HashMap<>();
+		keyword3Map.put("value", CommonUtil.dateToStringByFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
+		dataMap.put("keyword3", keyword3Map);
+
+		Map<String, Object> remarkMap = new HashMap<>();
+		remarkMap.put("value", "请持续关注后续完成订单通知");
+		dataMap.put("remark", remarkMap);
+		tmVo.setData(dataMap);
+		wxGzhMessageService.sendTemplateMessage(tmVo);
+		return R.status(true);
+	}
+
+	/**
+	 * 发送完成订单微信消息
+	 *
+	 * @param openIdGzh 微信用户公众号标识
+	 * @param orderId 订单编号
+	 * @param orderFinishTime 订单完成时间
+	 */
+	@GetMapping("/sendFinishOrderWxMessage")
+	@ApiOperationSupport(order = 4)
+	@ApiOperation(value = "发送完成订单微信消息", notes = "")
+	public R sendFinishOrderWxMessage(@ApiParam(value = "微信用户公众号标识", required = true) String openIdGzh,
+									  @ApiParam(value = "订单编号", required = true) String orderId,
+									  @ApiParam(value = "订单完成时间", required = true) Date orderFinishTime){
+		TemplateMessageVo tmVo = new TemplateMessageVo();
+		tmVo.setTouser(openIdGzh);
+		tmVo.setTemplate_id(wxGzhTemplateMessageIdDdwc);
+		Map<String, Object> dataMap = new HashMap<>();
+		Map<String, Object> firstMap = new HashMap<>();
+		firstMap.put("value", "您好，订单已完成");
+		dataMap.put("first", firstMap);
+
+		Map<String, Object> keyword1Map = new HashMap<>();
+		keyword1Map.put("value", orderId);
+		dataMap.put("keyword1", keyword1Map);
+
+		Map<String, Object> keyword2Map = new HashMap<>();
+		keyword2Map.put("value", CommonUtil.dateToStringByFormat(orderFinishTime, "yyyy-MM-dd HH:mm:ss"));
+		dataMap.put("keyword2", keyword2Map);
+
+		Map<String, Object> remarkMap = new HashMap<>();
+		remarkMap.put("value", "请持续关注后续解冻返现入账通知");
+		dataMap.put("remark", remarkMap);
+		tmVo.setData(dataMap);
+		wxGzhMessageService.sendTemplateMessage(tmVo);
+		return R.status(true);
+	}
+
+	/**
+	 * 发送获得返现微信消息
+	 *
+	 * @param openIdGzh 微信用户公众号标识
+	 * @param returnMoneyCause 返现原因
+	 * @param returnMoney 返现金额
+	 */
+	@GetMapping("/sendRebateWxMessage")
+	@ApiOperationSupport(order = 5)
+	@ApiOperation(value = "发送获得返现微信消息", notes = "")
+	public R sendRebateWxMessage(@ApiParam(value = "微信用户公众号标识", required = true) String openIdGzh,
+								 @ApiParam(value = "返现原因", required = true) String returnMoneyCause,
+								 @ApiParam(value = "返现金额", required = true) double returnMoney){
+		TemplateMessageVo tmVo = new TemplateMessageVo();
+		tmVo.setTouser(openIdGzh);
+		tmVo.setTemplate_id(wxGzhTemplateMessageIdHdfx);
+		Map<String, Object> dataMap = new HashMap<>();
+		Map<String, Object> firstMap = new HashMap<>();
+		firstMap.put("value", "您好，新返现已入账");
+		dataMap.put("first", firstMap);
+
+		Map<String, Object> keyword1Map = new HashMap<>();
+		keyword1Map.put("value", returnMoneyCause);
+		dataMap.put("keyword1", keyword1Map);
+
+		Map<String, Object> keyword2Map = new HashMap<>();
+		keyword2Map.put("value", CommonUtil.formatDouble(returnMoney) + "元");
+		keyword2Map.put("color", "#008000");
+		dataMap.put("keyword2", keyword2Map);
+
+		Map<String, Object> keyword3Map = new HashMap<>();
+		keyword3Map.put("value", "入账到个人中心，可取现金额");
+		dataMap.put("keyword3", keyword3Map);
+
+		Map<String, Object> remarkMap = new HashMap<>();
+		remarkMap.put("value", "进入个人中心->自助提现申请，提现到微信零钱，欢迎再次光顾");
+		dataMap.put("remark", remarkMap);
+		tmVo.setData(dataMap);
+		wxGzhMessageService.sendTemplateMessage(tmVo);
+		return R.status(true);
+	}
+
+	/**
+	 * 发送支付成功消息
+	 *
+	 * @param openIdGzh 微信用户公众号标识
+	 * @param payMoney 支付金额
+	 * @param payTime 支付时间
+	 */
+	@GetMapping("/sendPaySuccessWxMessage")
+	@ApiOperationSupport(order = 6)
+	@ApiOperation(value = "发送支付成功消息", notes = "")
+	public R sendPaySuccessWxMessage(@ApiParam(value = "微信用户公众号标识", required = true) String openIdGzh,
+									 @ApiParam(value = "支付金额", required = true) Double payMoney,
+									 @ApiParam(value = "支付时间", required = true) Date payTime){
+		TemplateMessageVo tmVo = new TemplateMessageVo();
+		tmVo.setTouser(openIdGzh);
+		tmVo.setTemplate_id(wxGzhTemplateMessageIdTxcg);
+		Map<String, Object> dataMap = new HashMap<>();
+		Map<String, Object> firstMap = new HashMap<>();
+		firstMap.put("value", "恭喜您，提现成功");
+		dataMap.put("first", firstMap);
+
+		Map<String, Object> keyword1Map = new HashMap<>();
+		keyword1Map.put("value", payMoney + "元");
+		keyword1Map.put("color", "#e4393c");
+		dataMap.put("keyword1", keyword1Map);
+
+		Map<String, Object> keyword2Map = new HashMap<>();
+		keyword2Map.put("value", CommonUtil.dateToStringByFormat(payTime, "yyyy-MM-dd HH:mm:ss"));
+		dataMap.put("keyword2", keyword2Map);
+
+		Map<String, Object> remarkMap = new HashMap<>();
+		remarkMap.put("value", "提现金额已到账微信钱包，请及时查收");
+		dataMap.put("remark", remarkMap);
+		tmVo.setData(dataMap);
+		wxGzhMessageService.sendTemplateMessage(tmVo);
 		return R.status(true);
 	}
 

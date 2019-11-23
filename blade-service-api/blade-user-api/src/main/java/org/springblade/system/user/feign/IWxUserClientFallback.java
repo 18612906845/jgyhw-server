@@ -23,4 +23,15 @@ public class IWxUserClientFallback implements IWxUserClient {
 	public R<WxUser> findWxUserByOpenIdGzh(@RequestParam("openIdGzh") String openIdGzh) {
 		return R.fail(400,"未获取到微信用户信息");
 	}
+
+	/**
+	 * 根据用户标识获取微信用户
+	 *
+	 * @param wxUserId 用户标识
+	 * @return
+	 */
+	@Override
+	public R<WxUser> findWxUserById(@RequestParam("wxUserId") Long wxUserId) {
+		return R.fail(400,"未获取到微信用户信息");
+	}
 }

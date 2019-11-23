@@ -15,7 +15,11 @@
  */
 package org.springblade.common.tool;
 
+import io.micrometer.core.instrument.util.StringUtils;
+
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * 通用工具类
@@ -23,6 +27,8 @@ import java.text.DecimalFormat;
  * @author Chill
  */
 public class CommonUtil {
+
+	protected static final String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
 
 	/**
 	 * 计算联盟返利
@@ -62,6 +68,24 @@ public class CommonUtil {
 	}
 
 	/**
+	 * 计算用户返利
+	 *
+	 * @param unitPrice 商品单价
+	 * @param rebateScale 返利比例
+	 * @return
+	 */
+	public static Double rebateCompute(Double unitPrice, Integer rebateScale){
+		if(unitPrice == null || rebateScale == null){
+			return 0.0;
+		}
+		Double rebateDouble = unitPrice * (rebateScale / 100.00);
+		//保留2位小数
+		DecimalFormat df = new DecimalFormat("#.00");
+		Double rebate = Double.valueOf(df.format(rebateDouble));
+		return rebate;
+	}
+
+	/**
 	 * 格式化双精度数据
 	 *
 	 * @param source 元数据
@@ -74,6 +98,26 @@ public class CommonUtil {
 		//保留2位小数
 		DecimalFormat df = new DecimalFormat("#.00");
 		return Double.valueOf(df.format(source));
+	}
+
+	/**
+	 * 日期格式化成字符串
+	 *
+	 * @param date 日期
+	 * @param format 格式
+	 * @return
+	 */
+	public static String dateToStringByFormat(Date date, String format){
+		String dateStr = "";
+		if(date == null){
+			return dateStr;
+		}
+		if(StringUtils.isBlank(format)){
+			format = YYYY_MM_DD_HH_MM_SS;
+		}
+		SimpleDateFormat sdf = new SimpleDateFormat(format);
+		dateStr = sdf.format(date);
+		return dateStr;
 	}
 
 }

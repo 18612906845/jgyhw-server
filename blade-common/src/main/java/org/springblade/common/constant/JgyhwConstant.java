@@ -53,6 +53,11 @@ public interface JgyhwConstant {
 	String APPLICATION_TOKEN_NAME = "jgyhw-token";
 
 	/**
+	 * 订单服务名称
+	 */
+	String APPLICATION_ORDER_NAME = "jgyhw-order";
+
+	/**
 	 * 京东商品Redis Key前缀
 	 */
 	String JD_GOODS_KEY_PREFIX = "jdGoodsKey:";
@@ -67,5 +72,43 @@ public interface JgyhwConstant {
 	 */
 	String WX_XCX_SERVICE_API_TOKEN_KEY_PREFIX = "wxServiceApiTokenKey:xcx:";
 
+	/**
+	 * 订单状态-待付款
+	 */
+	Integer ORDER_STATUS_DFK = 1;
 
+	/**
+	 * 订单状态-已付款
+	 */
+	Integer ORDER_STATUS_YFK = 2;
+
+	/**
+	 * 订单状态-已取消
+	 */
+	Integer ORDER_STATUS_YQX = 3;
+
+	/**
+	 * 订单状态-已成团
+	 */
+	Integer ORDER_STATUS_YCT = 4;
+
+	/**
+	 * 订单状态-已完成
+	 */
+	Integer ORDER_STATUS_YWC = 5;
+
+	/**
+	 * 订单状态-已入账
+	 */
+	Integer ORDER_STATUS_YRZ = 6;
+
+	/**
+	 * 订单状态-无效
+	 */
+	Integer ORDER_STATUS_WX = 7;
+
+	/**
+	 * 订单平台-京东
+	 */
+	Integer ORDER_PLATFORM_JD = 1;
 }

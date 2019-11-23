@@ -12,6 +12,7 @@
     <groupId>cn.com.jgyhw</groupId>
     <artifactId>jgyhw-token</artifactId>
     <version>${jgyhw.project.version}</version>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>

@@ -30,4 +30,12 @@ public interface IWxUserClient {
 	@GetMapping(API_PREFIX + "/findWxUserByOpenIdGzh")
 	R<WxUser> findWxUserByOpenIdGzh(@RequestParam("openIdGzh") String openIdGzh);
 
+	/**
+	 * 根据用户标识获取微信用户
+	 *
+	 * @param wxUserId 用户标识
+	 * @return
+	 */
+	@GetMapping(API_PREFIX + "/findWxUserById")
+	R<WxUser> findWxUserById(@RequestParam("wxUserId") Long wxUserId);
 }

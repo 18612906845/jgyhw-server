@@ -47,4 +47,21 @@ public class WxUserController {
 		WxUser wu = wxUserService.getOne(Wrappers.<WxUser>lambdaQuery().eq(WxUser::getOpenIdGzh, openIdGzh));
 		return R.data(wu);
 	}
+
+	/**
+	 * 根据用户标识获取微信用户
+	 *
+	 * @param wxUserId 用户标识
+	 * @return
+	 */
+	@GetMapping("/findWxUserById")
+	@ApiOperationSupport(order = 2)
+	@ApiOperation(value = "根据用户标识获取微信用户", notes = "")
+	public R<WxUser> findWxUserById(@ApiParam(value = "用户标识", required = true) Long wxUserId){
+		if(wxUserId == null){
+			return R.data(null);
+		}
+		WxUser wu = wxUserService.getById(wxUserId);
+		return R.data(wu);
+	}
 }

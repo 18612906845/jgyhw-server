@@ -24,6 +24,7 @@
         <module>jgyhw-message-api</module>
         <module>jgyhw-goods-api</module>
         <module>jgyhw-token-api</module>
+        <module>jgyhw-order-api</module>
     </modules>
 
     <dependencies>
