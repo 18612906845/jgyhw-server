@@ -2,8 +2,8 @@ package cm.com.jgyhw.goods.controller;
 
 import cm.com.jgyhw.goods.service.IJdGoodsApiService;
 import cm.com.jgyhw.goods.service.IJdGoodsService;
-import cn.com.jgyhw.goods.vo.JdGoodsVo;
 import cn.com.jgyhw.goods.entity.JdGoods;
+import cn.com.jgyhw.goods.vo.JdGoodsVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiOperationSupport;
@@ -11,9 +11,9 @@ import io.swagger.annotations.ApiParam;
 import jd.union.open.promotion.common.get.request.PromotionCodeReq;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springblade.common.constant.JdParamConstant;
 import org.springblade.core.tool.api.R;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cglib.beans.BeanCopier;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,14 +28,10 @@ import javax.annotation.Resource;
  * Created by WangLei on 2019/11/22 0022 00:37
  */
 @Slf4j
-@RefreshScope
 @RestController
 @RequestMapping("/jdGoods")
 @Api(value = "京东商品", tags = "京东商品")
 public class JdGoodsController {
-
-	@Value("${jgyhw.jd.webId}")
-	private String jdWebId;
 
 	@Autowired
 	private IJdGoodsApiService jdGoodsApiService;
@@ -96,7 +92,7 @@ public class JdGoodsController {
 		PromotionCodeReq pcr = new PromotionCodeReq();
 		pcr.setExt1(wxUserId);
 		pcr.setMaterialId(jdGoods.getMaterialUrl());
-		pcr.setSiteId(jdWebId);
+		pcr.setSiteId(JdParamConstant.JD_WEB_ID);
 		String cpsUrl = jdGoodsApiService.queryJdCpsUrl(pcr);
 
 		JdGoodsVo jgVo = new JdGoodsVo();

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springblade.common.constant.WxGzhParamConstant;
 import org.springblade.system.user.entity.WxUser;
 import org.springblade.system.user.service.IWxUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,12 +33,6 @@ import java.util.Map;
 @RequestMapping("/getAuthorization")
 @Api(value = "获取授权，取得用户信息", tags = "获取授权，取得用户信息")
 public class GetAuthorizationController {
-
-	@Value("${jgyhw.wxGzh.getAccessTokenOpenIdReqUrl:}")
-	private String wxGzhGetAccessTokenOpenIdReqUrl;
-
-	@Value("${jgyhw.wxGzh.getUserInfoReqUrl:}")
-	private String wxGzhGetUserInfoReqUrl;
 
 	@Value("${jgyhw.wxGzh.appId:}")
 	private String wxGzhAppId;
@@ -67,7 +62,7 @@ public class GetAuthorizationController {
 		String code = request.getParameter("code");
 		Map<String, String> accessTokenOpenIdMap = getAccessTokenAndOpenIdByCode(code);
 		if(accessTokenOpenIdMap != null) {
-			String url = wxGzhGetUserInfoReqUrl;
+			String url = WxGzhParamConstant.GET_USER_INFO_REQ_URL;
 			if (StringUtils.isBlank(url)) {
 				resultPageUrl = resultPageUrl.replaceAll("NIKE_NAME", "");
 				resultPageUrl = resultPageUrl.replaceAll("HEAD_IMG", "");
@@ -143,7 +138,7 @@ public class GetAuthorizationController {
 		if(StringUtils.isBlank(code)){
 			return null;
 		}
-		String url = wxGzhGetAccessTokenOpenIdReqUrl;
+		String url = WxGzhParamConstant.GET_ACCESS_TOKEN_OPEN_ID_REQ_URL;
 		if(StringUtils.isBlank(url)){
 			return null;
 		}

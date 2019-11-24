@@ -5,6 +5,7 @@ import cn.com.jgyhw.goods.feign.IJdGoodsClient;
 import cn.com.jgyhw.message.feign.IWxGzhMessageClient;
 import cn.com.jgyhw.order.entity.OrderGoods;
 import cn.com.jgyhw.order.entity.OrderRecord;
+import cn.com.jgyhw.order.enums.OrderEnum;
 import cn.com.jgyhw.order.service.IJdOrderApiService;
 import cn.com.jgyhw.order.service.IOrderGoodsService;
 import cn.com.jgyhw.order.service.IOrderRecordService;
@@ -20,6 +21,7 @@ import jd.union.open.order.query.response.SkuInfo;
 import jd.union.open.order.query.response.UnionOpenOrderQueryResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springblade.common.constant.JdParamConstant;
 import org.springblade.common.constant.JgyhwConstant;
 import org.springblade.common.tool.CommonUtil;
 import org.springblade.core.tool.api.R;
@@ -31,7 +33,10 @@ import org.springframework.cglib.beans.BeanCopier;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Created by WangLei on 2019/11/23 0023 18:41
@@ -40,30 +45,6 @@ import java.util.*;
 @RefreshScope
 @Service
 public class JdOrderApiServiceImpl implements IJdOrderApiService {
-
-	@Value("${jgyhw.jd.apiServerUrl}")
-	private String jdApiServerUrl;
-
-	@Value("${jgyhw.jd.appKey}")
-	private String jdAppKey;
-
-	@Value("${jgyhw.jd.appSecret}")
-	private String jdAppSecret;
-
-	@Value("${jgyhw.jd.validCodeWxcd}")
-	private Integer validCodeWxcd;
-
-	@Value("${jgyhw.jd.validCodeWxqx}")
-	private Integer validCodeWxqx;
-
-	@Value("${jgyhw.jd.validCodeDfk}")
-	private Integer validCodeDfk;
-
-	@Value("${jgyhw.jd.validCodeYfk}")
-	private Integer validCodeYfk;
-
-	@Value("${jgyhw.jd.validCodeYwc}")
-	private Integer validCodeYwc;
 
 	@Value("${jgyhw.system.returnMoneyWxUserIdDefault}")
 	private Long returnMoneyWxUserIdDefault;
@@ -100,7 +81,7 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 		log.info("更新京东订单信息，参数：查询时间：" + queryTimeStr + "；查询时间类型：" + queryTimeType +  "；是否解冻：" + isUnfreeze + " ；页数：" + pageNum + "；每页条数：" + pageSize);
 		UpdateOrderRespVo uorVo = new UpdateOrderRespVo();
 
-		JdClient client = new DefaultJdClient(jdApiServerUrl, "", jdAppKey, jdAppSecret);
+		JdClient client = new DefaultJdClient(JdParamConstant.API_SERVER_URL, "", JdParamConstant.APP_KEY, JdParamConstant.APP_SECRET);
 		UnionOpenOrderQueryRequest unionOpenOrderQueryRequest = new UnionOpenOrderQueryRequest();
 		OrderReq orderReq = new OrderReq();
 		orderReq.setPageNo(pageNum);
@@ -129,17 +110,17 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 				log.info("更新京东订单信息，查询到" + orArray.length + "条订单记录");
 				for(OrderResp or : orArray){
 					int validCode = or.getValidCode();
-					if(validCodeWxcd.equals(validCode)){//无效-拆单
+					if(OrderEnum.JD_VALID_CODE_WXCD.getKey() == validCode){//无效-拆单
 						invalidSeparateOrderDispose(or);
-					}else if(validCodeWxqx.equals(validCode)){//无效-取消
+					}else if(OrderEnum.JD_VALID_CODE_WXQX.getKey() == validCode){//无效-取消
 						invalidCancelOrderDispose(or);
-					}else if(validCodeDfk.equals(validCode)){//待付款
+					}else if(OrderEnum.JD_VALID_CODE_DFK.getKey() == validCode){//待付款
 						awaitPayOrderDispose(or);
-					}else if(validCodeYfk.equals(validCode)){//已付款
+					}else if(OrderEnum.JD_VALID_CODE_YFK.getKey() == validCode){//已付款
 						finishPayOrderDispose(or);
-					}else if(validCodeYwc.equals(validCode)){//已完成
+					}else if(OrderEnum.JD_VALID_CODE_YWC.getKey() == validCode){//已完成
 						finishOrderDispose(or, isUnfreeze);
-					}else if(validCode > validCodeWxqx && validCode < validCodeYfk){// 其他无效，删除订单
+					}else if(validCode > OrderEnum.JD_VALID_CODE_WXQX.getKey() && validCode < OrderEnum.JD_VALID_CODE_DFK.getKey()){// 其他无效，删除订单
 						invalidSeparateOrderDispose(or);
 					}
 				}
@@ -166,7 +147,7 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 	private void invalidSeparateOrderDispose(OrderResp orderResp){
 		Long orderId = orderResp.getOrderId();
 		// 查询订单是否存在
-		OrderRecord or = orderRecordService.getOne(Wrappers.<OrderRecord>lambdaQuery().eq(OrderRecord::getOrderId, orderId).eq(OrderRecord::getPlatform, JgyhwConstant.ORDER_PLATFORM_JD));
+		OrderRecord or = orderRecordService.getOne(Wrappers.<OrderRecord>lambdaQuery().eq(OrderRecord::getOrderId, orderId).eq(OrderRecord::getPlatform, OrderEnum.ORDER_PLATFORM_JD.getKey()));
 		if(or != null){
 			// 删除订单及订单商品信息
 			orderRecordService.deleteOrderRecord(or.getId());
@@ -182,14 +163,14 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 	private void invalidCancelOrderDispose(OrderResp orderResp){
 		Long orderId = orderResp.getOrderId();
 		// 查询订单是否存在
-		OrderRecord or = orderRecordService.getOne(Wrappers.<OrderRecord>lambdaQuery().eq(OrderRecord::getOrderId, orderId).eq(OrderRecord::getPlatform, JgyhwConstant.ORDER_PLATFORM_JD));
+		OrderRecord or = orderRecordService.getOne(Wrappers.<OrderRecord>lambdaQuery().eq(OrderRecord::getOrderId, orderId).eq(OrderRecord::getPlatform, OrderEnum.ORDER_PLATFORM_JD.getKey()));
 		if(or == null){//新建订单
 			or = new OrderRecord();
-			or.setStatus(JgyhwConstant.ORDER_STATUS_YQX);
+			or.setStatus(OrderEnum.ORDER_STATUS_YQX.getKey());
 			createOrderRecordByOrderResp(or, orderResp);
 			log.info("京东无效-取消订单处理，无订单记录，新建订单，编号：" + orderId);
 		}else{// 更改状态
-			or.setStatus(JgyhwConstant.ORDER_STATUS_YQX);
+			or.setStatus(OrderEnum.ORDER_STATUS_YQX.getKey());
 			updateOrderRecordByOrderResp(or, orderResp, false);
 			log.info("京东无效-取消订单处理，有订单记录，更新订单，编号：" + orderId);
 		}
@@ -203,10 +184,10 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 	private void awaitPayOrderDispose(OrderResp orderResp){
 		Long orderId = orderResp.getOrderId();
 		// 查询订单是否存在
-		OrderRecord or = orderRecordService.getOne(Wrappers.<OrderRecord>lambdaQuery().eq(OrderRecord::getOrderId, orderId).eq(OrderRecord::getPlatform, JgyhwConstant.ORDER_PLATFORM_JD));
+		OrderRecord or = orderRecordService.getOne(Wrappers.<OrderRecord>lambdaQuery().eq(OrderRecord::getOrderId, orderId).eq(OrderRecord::getPlatform, OrderEnum.ORDER_PLATFORM_JD.getKey()));
 		if(or == null){// 新建订单
 			or = new OrderRecord();
-			or.setStatus(JgyhwConstant.ORDER_STATUS_DFK);
+			or.setStatus(OrderEnum.ORDER_STATUS_DFK.getKey());
 			createOrderRecordByOrderResp(or, orderResp);
 			// 判断用户是否关注公众号
 			R<WxUser> wxUserR = wxUserClient.findWxUserById(or.getWxUserId());
@@ -228,10 +209,10 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 	private void finishPayOrderDispose(OrderResp orderResp){
 		Long orderId = orderResp.getOrderId();
 		// 查询订单是否存在
-		OrderRecord or = orderRecordService.getOne(Wrappers.<OrderRecord>lambdaQuery().eq(OrderRecord::getOrderId, orderId).eq(OrderRecord::getPlatform, JgyhwConstant.ORDER_PLATFORM_JD));
+		OrderRecord or = orderRecordService.getOne(Wrappers.<OrderRecord>lambdaQuery().eq(OrderRecord::getOrderId, orderId).eq(OrderRecord::getPlatform, OrderEnum.ORDER_PLATFORM_JD.getKey()));
 		if(or == null){// 新建订单
 			or = new OrderRecord();
-			or.setStatus(JgyhwConstant.ORDER_STATUS_YFK);
+			or.setStatus(OrderEnum.ORDER_STATUS_YFK.getKey());
 			createOrderRecordByOrderResp(or, orderResp);
 			// 判断用户是否关注公众号
 			R<WxUser> wxUserR = wxUserClient.findWxUserById(or.getWxUserId());
@@ -243,12 +224,12 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 			}
 			log.info("京东已支付订单处理，无订单记录，新建订单，编号：" + orderId);
 		}else{
-			if(or.getStatus().equals(JgyhwConstant.ORDER_STATUS_DFK)){// 若是待付款订单，则修改为已付款
+			if(or.getStatus().equals(OrderEnum.ORDER_STATUS_DFK.getKey())){// 若是待付款订单，则修改为已付款
 				Integer updateBeforeStatus = or.getStatus(); // 修改之前订单状态
-				or.setStatus(JgyhwConstant.ORDER_STATUS_YFK);
+				or.setStatus(OrderEnum.ORDER_STATUS_YFK.getKey());
 				updateOrderRecordByOrderResp(or, orderResp, false);
 				// 如果修改之前订单状态已经是已付款，则不发送消息
-				if(!updateBeforeStatus.equals(JgyhwConstant.ORDER_STATUS_YFK)) {
+				if(!updateBeforeStatus.equals(OrderEnum.ORDER_STATUS_YFK.getKey())) {
 					// 判断用户是否关注公众号
 					R<WxUser> wxUserR = wxUserClient.findWxUserById(or.getWxUserId());
 					if(wxUserR.getCode() == 200){
@@ -272,10 +253,10 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 	private void finishOrderDispose(OrderResp orderResp, boolean isUnfreeze){
 		Long orderId = orderResp.getOrderId();
 		// 查询订单是否存在
-		OrderRecord or = orderRecordService.getOne(Wrappers.<OrderRecord>lambdaQuery().eq(OrderRecord::getOrderId, orderId).eq(OrderRecord::getPlatform, JgyhwConstant.ORDER_PLATFORM_JD));
+		OrderRecord or = orderRecordService.getOne(Wrappers.<OrderRecord>lambdaQuery().eq(OrderRecord::getOrderId, orderId).eq(OrderRecord::getPlatform, OrderEnum.ORDER_PLATFORM_JD.getKey()));
 		if(or == null){// 新建订单
 			or = new OrderRecord();
-			or.setStatus(JgyhwConstant.ORDER_STATUS_YWC);
+			or.setStatus(OrderEnum.ORDER_STATUS_YWC.getKey());
 			createOrderRecordByOrderResp(or, orderResp);
 			or.setFinishTime(new Date(orderResp.getFinishTime()));
 			// 判断用户是否关注公众号
@@ -289,14 +270,14 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 			log.info("京东完成订单处理，无订单记录，新建订单，编号：" + orderId);
 		}else{// 更改状态
 			or.setFinishTime(new Date(orderResp.getFinishTime()));
-			if(!or.getStatus().equals(JgyhwConstant.ORDER_STATUS_YQX) &&
-				!or.getStatus().equals(JgyhwConstant.ORDER_STATUS_WX) &&
-				!or.getStatus().equals(JgyhwConstant.ORDER_STATUS_YRZ)){// 跳过取消/无效/已入账订单
+			if(!or.getStatus().equals(OrderEnum.ORDER_STATUS_YQX.getKey()) &&
+				!or.getStatus().equals(OrderEnum.ORDER_STATUS_WX.getKey()) &&
+				!or.getStatus().equals(OrderEnum.ORDER_STATUS_YRZ.getKey())){// 跳过取消/无效/已入账订单
 				Integer updateBeforeStatus = or.getStatus(); // 修改之前订单状态
-				or.setStatus(JgyhwConstant.ORDER_STATUS_YWC);
+				or.setStatus(OrderEnum.ORDER_STATUS_YWC.getKey());
 				updateOrderRecordByOrderResp(or, orderResp, true);
 				// 如果修改之前订单状态已经是已完成，则不发送消息
-				if(!updateBeforeStatus.equals(JgyhwConstant.ORDER_STATUS_YWC)){
+				if(!updateBeforeStatus.equals(OrderEnum.ORDER_STATUS_YWC.getKey())){
 					// 判断用户是否关注公众号
 					R<WxUser> wxUserR = wxUserClient.findWxUserById(or.getWxUserId());
 					if(wxUserR.getCode() == 200){
@@ -325,13 +306,13 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 			return;
 		}
 		// 根据订单状态判断订单是否可以结算
-		if(or.getStatus().equals(JgyhwConstant.ORDER_STATUS_YRZ) ||
-			or.getStatus().equals(JgyhwConstant.ORDER_STATUS_WX) ||
-			or.getStatus().equals(JgyhwConstant.ORDER_STATUS_YQX)){
+		if(or.getStatus().equals(OrderEnum.ORDER_STATUS_YRZ.getKey()) ||
+			or.getStatus().equals(OrderEnum.ORDER_STATUS_WX.getKey()) ||
+			or.getStatus().equals(OrderEnum.ORDER_STATUS_YQX.getKey())){
 			return;
 		}
 		// 更改京东订单状态为已入账
-		or.setStatus(JgyhwConstant.ORDER_STATUS_YRZ);
+		or.setStatus(OrderEnum.ORDER_STATUS_YRZ.getKey());
 
 		// 更新订单到数据库
 		updateOrderRecordByOrderResp(or, orderResp, true);
@@ -476,7 +457,7 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 		}
 		orderRecord.setCommission(CommonUtil.formatDouble(orderEstimateFeeCount));
 		orderRecord.setReturnMoney(CommonUtil.formatDouble(orderReturnMoneyCount));
-		orderRecord.setPlatform(JgyhwConstant.ORDER_PLATFORM_JD);
+		orderRecord.setPlatform(OrderEnum.ORDER_PLATFORM_JD.getKey());
 
 		// 获取微信用户标识
 		if(StringUtils.isBlank(ext1)){
@@ -551,8 +532,8 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 		orderRecord.setUpdateTime(new Date());
 
 		// 订单入账并返现金额小于等于0
-		if(orderRecord.getStatus().equals(JgyhwConstant.ORDER_STATUS_YRZ) && orderRecord.getReturnMoney() <= 0 && isReturnGoods){
-			orderRecord.setStatus(JgyhwConstant.ORDER_STATUS_WX);// 设置订单状态为无效
+		if(orderRecord.getStatus().equals(OrderEnum.ORDER_STATUS_YRZ.getKey()) && orderRecord.getReturnMoney() <= 0 && isReturnGoods){
+			orderRecord.setStatus(OrderEnum.ORDER_STATUS_WX.getKey());// 设置订单状态为无效
 		}
 		orderRecordService.updateById(orderRecord);
 	}

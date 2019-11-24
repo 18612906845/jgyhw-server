@@ -1,13 +1,14 @@
 package cn.com.jgyhw.mesage.service.impl;
 
 import cn.com.jgyhw.mesage.service.IWxGzhMessageService;
+import cn.com.jgyhw.message.constant.MessageConstant;
 import cn.com.jgyhw.message.vo.ArticleVo;
 import cn.com.jgyhw.message.vo.TemplateMessageVo;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springblade.common.constant.JgyhwConstant;
+import org.springblade.common.constant.WxGzhParamConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -29,12 +30,6 @@ import java.util.List;
 @Service
 public class WxGzhMessageServiceImpl implements IWxGzhMessageService {
 
-	@Value("${jgyhw.wxGzh.sendCustomMessageUrl:}")
-	private String wxGzhSendCustomMessageUrl;
-
-	@Value("${jgyhw.wxGzh.sendTemplateMessageUrl:}")
-	private String wxGzhSendTemplateMessageUrl;
-
 	@Value("${jgyhw.wxGzh.appId:}")
 	private String wxGzhAppId;
 
@@ -55,13 +50,13 @@ public class WxGzhMessageServiceImpl implements IWxGzhMessageService {
 		if(StringUtils.isBlank(toUser) || StringUtils.isBlank(content)){
 			return ;
 		}
-		String accessToken = stringRedisTemplate.opsForValue().get(JgyhwConstant.WX_GZH_SERVICE_API_TOKEN_KEY_PREFIX.concat(wxGzhAppId));
+		String accessToken = stringRedisTemplate.opsForValue().get(WxGzhParamConstant.WX_GZH_SERVICE_API_TOKEN_KEY_PREFIX.concat(wxGzhAppId));
 		log.info("发送文本客服消息，微信ServiceApiToken：" + accessToken);
 		if(StringUtils.isBlank(accessToken)){
 			log.warn("微信ServiceApiToken为空，未执行文本客服消息发送操作");
 			return ;
 		}
-		String url = wxGzhSendCustomMessageUrl;
+		String url = WxGzhParamConstant.SEND_CUSTOM_MESSAGE_URL;
 		if(!StringUtils.isBlank(url)){
 			url = url.replaceAll("ACCESS_TOKEN", accessToken);
 		}
@@ -74,7 +69,7 @@ public class WxGzhMessageServiceImpl implements IWxGzhMessageService {
 
 		JSONObject postDataJson = new JSONObject();
 		postDataJson.put("touser", toUser);
-		postDataJson.put("msgtype", JgyhwConstant.ANSWER_MSG_TYPE_TEXT);
+		postDataJson.put("msgtype", MessageConstant.ANSWER_MSG_TYPE_TEXT);
 		postDataJson.put("text", textJsonObj);
 		// 将请求头和请求参数设置到HttpEntity中
 		HttpEntity httpEntity = new HttpEntity(postDataJson, httpHeaders);
@@ -94,13 +89,13 @@ public class WxGzhMessageServiceImpl implements IWxGzhMessageService {
 		if(StringUtils.isBlank(toUser) || CollectionUtils.isEmpty(articleVoList)){
 			return ;
 		}
-		String accessToken = stringRedisTemplate.opsForValue().get(JgyhwConstant.WX_GZH_SERVICE_API_TOKEN_KEY_PREFIX.concat(wxGzhAppId));
+		String accessToken = stringRedisTemplate.opsForValue().get(WxGzhParamConstant.WX_GZH_SERVICE_API_TOKEN_KEY_PREFIX.concat(wxGzhAppId));
 		log.info("发送图文客服消息，微信ServiceApiToken：" + accessToken);
 		if(StringUtils.isBlank(accessToken)){
 			log.warn("微信ServiceApiToken为空，未执行图文客服消息发送操作");
 			return ;
 		}
-		String url = wxGzhSendCustomMessageUrl;
+		String url = WxGzhParamConstant.SEND_CUSTOM_MESSAGE_URL;
 		if(!StringUtils.isBlank(url)){
 			url = url.replaceAll("ACCESS_TOKEN", accessToken);
 		}
@@ -121,7 +116,7 @@ public class WxGzhMessageServiceImpl implements IWxGzhMessageService {
 		newsJsonObj.put("articles", articlesJsonArray);
 		JSONObject postDataJson = new JSONObject();
 		postDataJson.put("touser", toUser);
-		postDataJson.put("msgtype", JgyhwConstant.ANSWER_MSG_TYPE_NEWS);
+		postDataJson.put("msgtype", MessageConstant.ANSWER_MSG_TYPE_NEWS);
 		postDataJson.put("news", newsJsonObj);
 		// 将请求头和请求参数设置到HttpEntity中
 		HttpEntity httpEntity = new HttpEntity(postDataJson, httpHeaders);
@@ -140,13 +135,13 @@ public class WxGzhMessageServiceImpl implements IWxGzhMessageService {
 		if(templateMessageVo == null){
 			return ;
 		}
-		String accessToken = stringRedisTemplate.opsForValue().get(JgyhwConstant.WX_GZH_SERVICE_API_TOKEN_KEY_PREFIX.concat(wxGzhAppId));
+		String accessToken = stringRedisTemplate.opsForValue().get(WxGzhParamConstant.WX_GZH_SERVICE_API_TOKEN_KEY_PREFIX.concat(wxGzhAppId));
 		log.info("发送模版消息，微信ServiceApiToken：" + accessToken);
 		if(StringUtils.isBlank(accessToken)){
 			log.warn("微信ServiceApiToken为空，未执行模版消息发送操作");
 			return ;
 		}
-		String url = wxGzhSendTemplateMessageUrl;
+		String url = WxGzhParamConstant.SEND_TEMPLATE_MESSAGE_URL;
 		if(!StringUtils.isBlank(url)){
 			url = url.replaceAll("ACCESS_TOKEN", accessToken);
 		}

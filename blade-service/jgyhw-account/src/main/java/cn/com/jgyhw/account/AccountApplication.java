@@ -15,6 +15,6 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 public class AccountApplication {
 
 	public static void main(String[] args) {
-		BladeApplication.run(JgyhwConstant.APPLICATION_GOODS_NAME, AccountApplication.class, args);
+		BladeApplication.run(JgyhwConstant.APPLICATION_ACCOUNT_NAME, AccountApplication.class, args);
 	}
 }

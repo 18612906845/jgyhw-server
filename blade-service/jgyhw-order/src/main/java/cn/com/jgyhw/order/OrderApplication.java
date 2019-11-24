@@ -11,7 +11,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  * Created by WangLei on 2019/11/23 0023 21:39
  */
 @SpringBootApplication
-@EnableFeignClients(basePackages = {"org.springblade.system.user", "cn.com.jgyhw.goods"})
+@EnableFeignClients(basePackages = {"org.springblade.system.user", "cn.com.jgyhw.goods", "cn.com.jgyhw.message"})
 public class OrderApplication {
 
 	public static void main(String[] args) {

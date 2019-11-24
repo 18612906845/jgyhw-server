@@ -15,9 +15,8 @@ import jd.union.open.promotion.common.get.response.PromotionCodeResp;
 import jd.union.open.promotion.common.get.response.UnionOpenPromotionCommonGetResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springblade.common.constant.JdParamConstant;
 import org.springblade.common.tool.CommonUtil;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -29,18 +28,8 @@ import java.util.Date;
  * Created by WangLei on 2019/11/21 0021 23:04
  */
 @Slf4j
-@RefreshScope
 @Service
 public class IJdGoodsApiServiceImpl implements IJdGoodsApiService {
-
-	@Value("${jgyhw.jd.apiServerUrl}")
-	private String jdApiServerUrl;
-
-	@Value("${jgyhw.jd.appKey}")
-	private String jdAppKey;
-
-	@Value("${jgyhw.jd.appSecret}")
-	private String jdAppSecret;
 
 	@Resource(name = "jdGoodsServiceRedisImpl")
 	private IJdGoodsService jdGoodsServiceRedis;
@@ -57,7 +46,7 @@ public class IJdGoodsApiServiceImpl implements IJdGoodsApiService {
 		if(StringUtils.isBlank(goodsId)){
 			return null;
 		}
-		JdClient client = new DefaultJdClient(jdApiServerUrl, "", jdAppKey, jdAppSecret);
+		JdClient client = new DefaultJdClient(JdParamConstant.API_SERVER_URL, "", JdParamConstant.APP_KEY, JdParamConstant.APP_SECRET);
 		UnionOpenGoodsPromotiongoodsinfoQueryRequest request = new UnionOpenGoodsPromotiongoodsinfoQueryRequest();
 		request.setSkuIds(goodsId);
 		JdGoods jdGoods = null;
@@ -111,7 +100,7 @@ public class IJdGoodsApiServiceImpl implements IJdGoodsApiService {
 			return null;
 		}
 		String jdCpsUrl = null;
-		JdClient client = new DefaultJdClient(jdApiServerUrl, "", jdAppKey, jdAppSecret);
+		JdClient client = new DefaultJdClient(JdParamConstant.API_SERVER_URL, "", JdParamConstant.APP_KEY, JdParamConstant.APP_SECRET);
 		UnionOpenPromotionCommonGetRequest request = new UnionOpenPromotionCommonGetRequest();
 		request.setPromotionCodeReq(promotionCodeReq);
 		try {

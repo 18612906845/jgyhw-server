@@ -5,6 +5,7 @@ import cn.com.jgyhw.goods.entity.JdGoods;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springblade.common.constant.JdParamConstant;
 import org.springblade.common.constant.JgyhwConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,7 +40,7 @@ public class JdGoodsServiceRedisImpl implements IJdGoodsService {
 	@Override
 	public boolean saveJdGoods(JdGoods jdGoods) {
 		if(jdGoods != null){
-			stringRedisTemplate.opsForValue().set(JgyhwConstant.JD_GOODS_KEY_PREFIX.concat(jdGoods.getGoodsId()), JSON.toJSONString(jdGoods),jdGoodsPastDay, TimeUnit.DAYS);
+			stringRedisTemplate.opsForValue().set(JdParamConstant.JD_GOODS_KEY_PREFIX.concat(jdGoods.getGoodsId()), JSON.toJSONString(jdGoods),jdGoodsPastDay, TimeUnit.DAYS);
 			log.info("京东商品信息保存Redis成功：" + jdGoods.toString());
 			return true;
 		}else{
@@ -56,7 +57,7 @@ public class JdGoodsServiceRedisImpl implements IJdGoodsService {
 	 */
 	@Override
 	public JdGoods queryJdGoodsByGoodsId(String goodsId) {
-		String jsonStr = stringRedisTemplate.opsForValue().get(JgyhwConstant.JD_GOODS_KEY_PREFIX.concat(goodsId));
+		String jsonStr = stringRedisTemplate.opsForValue().get(JdParamConstant.JD_GOODS_KEY_PREFIX.concat(goodsId));
 		if(StringUtils.isBlank(jsonStr)){
 			return null;
 		}else{
