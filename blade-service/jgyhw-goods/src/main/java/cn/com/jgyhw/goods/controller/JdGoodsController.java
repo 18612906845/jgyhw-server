@@ -98,7 +98,7 @@ public class JdGoodsController {
 		// 查询对应用户的JD推广位信息
 		JdPosition jp = jdPositionService.queryJdPositionByWxUserId(Long.valueOf(wxUserId));
 		if(jp != null){
-			pcr.setPositionId(jp.getPositionId());
+			pcr.setPositionId(jp.getId());
 		}
 		pcr.setMaterialId(jdGoods.getMaterialUrl());
 		pcr.setSiteId(JdParamConstant.JD_WEB_ID);

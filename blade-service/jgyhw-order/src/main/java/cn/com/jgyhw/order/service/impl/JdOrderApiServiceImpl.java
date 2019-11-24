@@ -450,7 +450,7 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 		Long wxUserId = returnMoneyWxUserIdDefault;
 		if(positionId != null && positionId > 0){
 			R<JdPosition> jdPositionR = jdPositionClient.findJdPositionByPositionId(positionId);
-			if(jdPositionR.getCode() == 200 && jdPositionR.getData() != null && jdPositionR.getData().getPositionId() != null){
+			if(jdPositionR.getCode() == 200 && jdPositionR.getData() != null && jdPositionR.getData().getId() != null){
 				JdPosition jp = jdPositionR.getData();
 				wxUserId = jp.getWxUserId();
 			}

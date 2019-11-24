@@ -20,13 +20,13 @@ public class JdPosition extends BaseEntity {
 	 * 京东推广位ID
 	 */
 	@ApiModelProperty(value = "京东推广位ID")
-	private Long positionId;
+	private Long id;
 
 	/**
 	 * 京东推广位名称
 	 */
 	@ApiModelProperty(value = "京东推广位名称")
-	private String positionName;
+	private String name;
 
 	/**
 	 * 微信用户标识
