@@ -123,12 +123,12 @@ public class WxUserController {
 		}
 		// 有推荐人
 		WxUser pwu = wxUserService.getById(wu.getParentWxUserId());
-		wurmsVo.setParentWxUserId(pwu.getId());
 		if(pwu == null){// 推荐人用户信息不存在
 			// 修改推荐人字段为管理员
 			wu.setParentWxUserId(returnMoneyWxUserIdDefault);
 			wxUserService.updateById(wu);
 			wurmsVo.setParentWxUserId(returnMoneyWxUserIdDefault);
+			wurmsVo.setParentWxUserNikeName("系统管理员");
 			// 查询管理员信息
 			WxUser rootWxUser = wxUserService.getById(returnMoneyWxUserIdDefault);
 			if(rootWxUser != null){
@@ -145,6 +145,8 @@ public class WxUserController {
 				wurmsVo.setParentWxUserIdIsTenant(true);
 			}
 		}else{// 推荐人用户信息存在
+			wurmsVo.setParentWxUserId(pwu.getId());
+			wurmsVo.setParentWxUserNikeName(pwu.getNickName());
 			if(StringUtils.isNotBlank(pwu.getTenantId())){// 推荐人是租户
 				// 用户返现比例 = 推荐人设置的默认返现比例
 				if(pwu.getTenantReturnMoneyShare() != null && pwu.getTenantReturnMoneyShare() > 0){
@@ -156,6 +158,10 @@ public class WxUserController {
 				}
 				// 推荐人提成 = 推荐人收益 = 系统收益缺省值
 				wurmsVo.setParentReturnScaleTc(systemReturnMoneyShareSyDefault);
+				// 推荐人是管理员 = 推荐人收益 = 100%
+				if(pwu.getId().equals(returnMoneyWxUserIdDefault)){
+					wurmsVo.setParentReturnScaleTc(100);
+				}
 				// 订单所属租户 = 推荐人自己的租户ID
 				wurmsVo.setTenantId(pwu.getTenantId());
 				wurmsVo.setParentWxUserIdIsTenant(true);

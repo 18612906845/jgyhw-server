@@ -44,6 +44,12 @@ public class WxUserReturnMoneyScaleVo {
 	private Long parentWxUserId;
 
 	/**
+	 * 推荐人用户昵称
+	 */
+	@ApiModelProperty(value = "推荐人用户昵称")
+	private String parentWxUserNikeName;
+
+	/**
 	 * 推荐人是否租户
 	 */
 	@ApiModelProperty(value = "推荐人是否租户")

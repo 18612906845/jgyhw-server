@@ -42,7 +42,7 @@ public class WxGzhTextMessageDisposeThread implements Runnable {
 	/**
 	 * 系统全局返现比例
 	 */
-	private Integer systemReturnMoneyShare;
+	private Integer systemReturnMoneyShareDefault;
 
 	/**
 	 * 微信用户Feign接口
@@ -72,7 +72,7 @@ public class WxGzhTextMessageDisposeThread implements Runnable {
 				log.info("用户【" + receiveGzhOpenId + "】未登录，发送登陆链接消息");
 			}else{// 有登陆信息
 				// 获取用户的返现比例
-				Integer returnMoneyShare = systemReturnMoneyShare;
+				Integer returnMoneyShare = systemReturnMoneyShareDefault;
 				R<WxUserReturnMoneyScaleVo> wurmsVoR = wxUserClient.findWxUserReturnMoneyScaleVoById(wu.getId());
 				if(wurmsVoR.getCode() == 200 && wurmsVoR.getData() != null && wurmsVoR.getData().getReturnScale() > 0){
 					WxUserReturnMoneyScaleVo wurmsVo = wurmsVoR.getData();

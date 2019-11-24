@@ -58,8 +58,8 @@ public class WxGzhMessageController {
 	@Value("${jgyhw.jd.regexpExtractUrlJdGoodsId}")
 	private String regexpExtractUrlJdGoodsId;
 
-	@Value("${jgyhw.system.returnMoneyShare}")
-	private Integer systemReturnMoneyShare;
+	@Value("${jgyhw.system.returnMoneyShareDefault}")
+	private Integer systemReturnMoneyShareDefault;
 
 	@Value("${jgyhw.wxGzh.templateMessageIdDdqr}")
 	private String wxGzhTemplateMessageIdDdqr;
@@ -363,7 +363,7 @@ public class WxGzhMessageController {
 					wgtmdt.setGoodsId(goodsId);
 					wgtmdt.setReceiveGzhOpenId(fromUserName);
 					wgtmdt.setLoginMessageContent(loginMessageContent);
-					wgtmdt.setSystemReturnMoneyShare(systemReturnMoneyShare);
+					wgtmdt.setSystemReturnMoneyShareDefault(systemReturnMoneyShareDefault);
 					wgtmdt.setWxUserClient(wxUserClient);
 					wgtmdt.setJdGoodsClient(jdGoodsClient);
 					wgtmdt.setWxGzhMessageService(wxGzhMessageService);

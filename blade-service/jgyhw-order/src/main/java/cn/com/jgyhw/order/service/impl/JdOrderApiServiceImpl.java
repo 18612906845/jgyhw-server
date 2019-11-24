@@ -381,6 +381,31 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 					log.info("发送推荐人入账请求成功，推荐人信息：" + pma.getTargetJson());
 				}else{
 					log.error("发送推荐人入账请求失败，推荐人信息：" + pma.getTargetJson());
+					log.error("发送推荐人入账请求失败，订单信息：" + JSON.toJSONString(or));
+				}
+				// 如果推荐人不是管理员，那么应该给管理员发送抽成收入，抽成收入=商品返现总计 - 用户返现 - 用户返现*推荐人提成
+				if(!pma.getWxUserId().equals(returnMoneyWxUserIdDefault)){
+					Double returnMoneyCc = or.getCommission() - or.getReturnMoney() - returnMoneyTc;
+					MoneyAccount adminMa = new MoneyAccount();
+					adminMa.setWxUserId(returnMoneyWxUserIdDefault);
+					adminMa.setChangeType(AccountEnum.CHANGE_TYPE_CCSY.getKey());
+					adminMa.setChangeMoney(CommonUtil.formatDouble(returnMoneyCc));
+					adminMa.setTargetJson(JSON.toJSONString(wu));
+					// 发送推荐人入账请求
+					String parentParentNikeName = "";
+					if(StringUtils.isNotBlank(wurmsVo.getParentWxUserNikeName())){
+						parentParentNikeName = wurmsVo.getParentWxUserNikeName();
+					}
+					if(wurmsVo.getParentWxUserId() != null){
+						parentParentNikeName += "(" + wurmsVo.getParentWxUserId() + ")";
+					}
+					R<Boolean> adminPr = moneyAccountClient.addOrReduce(adminMa, parentParentNikeName + "邀请的 " + wu.getNickName() + " 完成订单结算，" + AccountEnum.CHANGE_TYPE_CCSY.getText() + "已入账");
+					if(adminPr.getCode() == 200 && adminPr.getData() == true){
+						log.info("发送管理员抽成入账请求成功，推荐人信息：" + adminMa.getTargetJson());
+					}else{
+						log.error("发送管理员抽成入账请求失败，推荐人信息：" + adminMa.getTargetJson());
+						log.error("发送管理员抽成入账请求失败，订单信息：" + JSON.toJSONString(or));
+					}
 				}
 			}
 		}else{
