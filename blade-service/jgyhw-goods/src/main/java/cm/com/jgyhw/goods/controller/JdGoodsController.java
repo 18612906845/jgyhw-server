@@ -39,14 +39,14 @@ public class JdGoodsController {
 	private IJdGoodsService jdGoodsServiceRedis;
 
 	/**
-	 * 根据商品编号获取商品主图地址
+	 * 根据京东商品编号获取商品主图地址
 	 *
 	 * @param goodsId 商品编号
 	 * @return
 	 */
 	@GetMapping("/findJdGoodsImgUrl")
 	@ApiOperationSupport(order = 1)
-	@ApiOperation(value = "根据商品编号获取商品主图地址", notes = "")
+	@ApiOperation(value = "根据京东商品编号获取商品主图地址", notes = "")
 	public R<String> findJdGoodsImgUrl(@ApiParam(value = "商品编号", required = true) String goodsId){
 		JdGoods jdGoods = jdGoodsApiService.reqJdApiGetJdGoodsByGoodsId(goodsId, null);
 		String goodsImgUrl = null;
@@ -57,21 +57,21 @@ public class JdGoodsController {
 	}
 
 	/**
-	 * 根据商品编号查询京东商品信息（缓存）
+	 * 根据京东商品编号查询商品信息（缓存）
 	 *
 	 * @param goodsId 商品编号
 	 * @return
 	 */
 	@GetMapping("/findJdGoodsCacheByGoodsId")
 	@ApiOperationSupport(order = 2)
-	@ApiOperation(value = "根据商品编号查询京东商品信息（缓存）", notes = "")
+	@ApiOperation(value = "根据京东商品编号查询商品信息（缓存）", notes = "")
 	public R<JdGoods> findJdGoodsCacheByGoodsId(@ApiParam(value = "商品编号", required = true) String goodsId){
 		JdGoods jdGoods = jdGoodsServiceRedis.queryJdGoodsByGoodsId(goodsId);
 		return R.data(jdGoods);
 	}
 
 	/**
-	 * 根据商品编号、微信用户标识获取京东商品推广信息（包含商品信息和推广链接）
+	 * 根据京东商品编号、微信用户标识获取商品推广信息（包含商品信息和推广链接）
 	 *
 	 * @param goodsId 商品编号
 	 * @param wxUserId 微信用户标识
@@ -80,7 +80,7 @@ public class JdGoodsController {
 	 */
 	@GetMapping("/findJdCpsInfo")
 	@ApiOperationSupport(order = 3)
-	@ApiOperation(value = "根据商品编号、微信用户标识获取京东商品推广链接", notes = "")
+	@ApiOperation(value = "根据京东商品编号、微信用户标识获取商品推广链接", notes = "")
 	public R<JdGoodsVo> findJdCpsInfo(@ApiParam(value = "商品编号", required = true) String goodsId,
 									  @ApiParam(value = "微信用户标识", required = true) String wxUserId,
 									  @ApiParam(value = "返现比例", required = true) Integer returnMoneyShare){
