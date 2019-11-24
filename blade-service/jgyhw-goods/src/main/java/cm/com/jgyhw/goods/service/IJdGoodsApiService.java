@@ -26,6 +26,7 @@ public interface IJdGoodsApiService {
 	 *                         materialId：推广物料
 	 *                         siteId：站点ID是指在联盟后台的推广管理中的网站Id
 	 *                         ext1：推客生成推广链接时传入的扩展字段
+	 *                         positionId: 推广位ID
 	 * @return
 	 */
 	String queryJdCpsUrl(PromotionCodeReq promotionCodeReq);

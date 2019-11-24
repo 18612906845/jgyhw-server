@@ -4,7 +4,9 @@ import cn.com.jgyhw.account.entity.MoneyAccount;
 import cn.com.jgyhw.account.enums.AccountEnum;
 import cn.com.jgyhw.account.feign.IMoneyAccountClient;
 import cn.com.jgyhw.goods.entity.JdGoods;
+import cn.com.jgyhw.goods.entity.JdPosition;
 import cn.com.jgyhw.goods.feign.IJdGoodsClient;
+import cn.com.jgyhw.goods.feign.IJdPositionClient;
 import cn.com.jgyhw.message.feign.IWxGzhMessageClient;
 import cn.com.jgyhw.order.entity.OrderGoods;
 import cn.com.jgyhw.order.entity.OrderRecord;
@@ -83,6 +85,9 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 
 	@Autowired
 	private IMoneyAccountClient moneyAccountClient;
+
+	@Autowired
+	private IJdPositionClient jdPositionClient;
 
 	/**
 	 * 更新京东订单信息
@@ -361,7 +366,7 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 
 			// 保存推荐人的入账信息
 			if(wu.getParentWxUserId() != null){// 有推荐人
-				WxUserReturnMoneyScaleVo wurmsVo = getReturnScaleByExt1(String.valueOf(wxUserId));
+				WxUserReturnMoneyScaleVo wurmsVo = getReturnScaleByWxUserId(wxUserId);
 				// 计算提成金额
 				Double returnMoneyTc = CommonUtil.rebateCompute(or.getCommission() - or.getReturnMoney(), wurmsVo.getParentReturnScaleTc());
 				int changeType = AccountEnum.CHANGE_TYPE_TGTC.getKey();
@@ -433,13 +438,25 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 
 		// 获取扩展字段
 		String ext1 = "";
+		// 获取推广位信息
+		Long positionId = 0L;
 		for(SkuInfo si : skuArray){
 			if(StringUtils.isBlank(ext1)){
 				ext1 = si.getExt1();
+				positionId = si.getPositionId();
+			}
+		}
+		// 根据推广位获取用户信息
+		Long wxUserId = returnMoneyWxUserIdDefault;
+		if(positionId != null && positionId > 0){
+			R<JdPosition> jdPositionR = jdPositionClient.findJdPositionByPositionId(positionId);
+			if(jdPositionR.getCode() == 200 && jdPositionR.getData() != null && jdPositionR.getData().getPositionId() != null){
+				JdPosition jp = jdPositionR.getData();
+				wxUserId = jp.getWxUserId();
 			}
 		}
 		// 获取返现比例
-		WxUserReturnMoneyScaleVo wurmsVo = getReturnScaleByExt1(ext1);
+		WxUserReturnMoneyScaleVo wurmsVo = getReturnScaleByWxUserId(wxUserId);
 
 		List<OrderGoods> ogList = new ArrayList<>();
 		int skuArrayLength = skuArray.length;
@@ -560,13 +577,13 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 	}
 
 	/**
-	 * 根据商品扩展字段获取用户返现比例和推荐人租户ID
+	 * 根据微信用户标识获取用户返现比例和推荐人租户ID
 	 *
-	 * @param ext1 扩展字段
+	 * @param wxUserId 微信用户标识
 	 * @return
 	 */
-	private WxUserReturnMoneyScaleVo getReturnScaleByExt1(String ext1){
-		log.info("根据商品扩展字段获取用户返现比例和推荐人租户ID，扩展字段：" + ext1);
+	private WxUserReturnMoneyScaleVo getReturnScaleByWxUserId(Long wxUserId){
+		log.info("根据商品扩展字段获取用户返现比例和推荐人租户ID，微信用户ID：" + wxUserId);
 		WxUserReturnMoneyScaleVo wurmsVo = new WxUserReturnMoneyScaleVo();
 		// 设置返现接受用户为系统缺省值
 		wurmsVo.setWxUserId(returnMoneyWxUserIdDefault);
@@ -574,11 +591,11 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 		wurmsVo.setReturnScale(systemReturnMoneyShareDefault);
 		// 设置提成比例为系统缺省值
 		wurmsVo.setParentReturnScaleTc(systemReturnMoneyShareTcDefault);
-		if(StringUtils.isBlank(ext1)){
+		if(wxUserId == null){
 			log.info("根据商品扩展字段获取用户返现比例和推荐人租户ID，返现比例：" + JSON.toJSONString(wurmsVo));
 			return wurmsVo;
 		}
-		R<WxUserReturnMoneyScaleVo> wurmsVoR = wxUserClient.findWxUserReturnMoneyScaleVoById(Long.valueOf(ext1));
+		R<WxUserReturnMoneyScaleVo> wurmsVoR = wxUserClient.findWxUserReturnMoneyScaleVoById(wxUserId);
 		if(wurmsVoR.getCode() == 200 && wurmsVoR.getData().getWxUserId() != null){
 			return wurmsVoR.getData();
 		}else{
