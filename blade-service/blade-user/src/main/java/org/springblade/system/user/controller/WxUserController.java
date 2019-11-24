@@ -117,7 +117,6 @@ public class WxUserController {
 			// 应该是管理员自己，购物百分百返现，无提成
 			wurmsVo.setReturnScale((wu.getReturnMoneyShare() == null || wu.getReturnMoneyShare() <= 0) ? 100 : wu.getReturnMoneyShare());
 			wurmsVo.setParentReturnScaleTc(0);
-			wurmsVo.setTenantId(wu.getTenantId());
 			log.info("根据微信用户标识获取返现/提成/收益比例、推荐人租户信息，无推荐人信息，最终结果：" + JSON.toJSONString(wurmsVo));
 			return R.data(wurmsVo);
 		}
