@@ -61,6 +61,11 @@
             <artifactId>jgyhw-message-api</artifactId>
             <version>${jgyhw.project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>cn.com.jgyhw</groupId>
+            <artifactId>jgyhw-account-api</artifactId>
+            <version>${jgyhw.project.version}</version>
+        </dependency>
     </dependencies>
 
 

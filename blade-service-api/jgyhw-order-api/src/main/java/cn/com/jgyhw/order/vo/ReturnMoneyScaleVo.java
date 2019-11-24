@@ -14,10 +14,16 @@ import lombok.Data;
 public class ReturnMoneyScaleVo {
 
 	/**
-	 * 用户信息
+	 * 推荐人租户ID
 	 */
-	@ApiModelProperty(value = "用户信息")
-    private Long wxUserId;
+	@ApiModelProperty(value = "推荐人租户ID")
+	private String parentTenantId;
+
+	/**
+	 * 订单所属用户
+	 */
+	@ApiModelProperty(value = "订单所属用户")
+	private Long wxUserId;
 
 	/**
 	 * 返现比例

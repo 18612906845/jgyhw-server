@@ -21,7 +21,7 @@ public class IJdGoodsClientFallback implements IJdGoodsClient {
 	 */
 	@Override
 	public R<String> findJdGoodsImgUrl(@RequestParam("goodsId") String goodsId) {
-		return R.fail(400,"未获取到商品主图地址");
+		return R.fail(400,"Feign未获取到商品主图地址");
 	}
 
 	/**
@@ -32,7 +32,7 @@ public class IJdGoodsClientFallback implements IJdGoodsClient {
 	 */
 	@Override
 	public R<JdGoods> findJdGoodsCacheByGoodsId(@RequestParam("goodsId") String goodsId) {
-		return R.fail(400,"未获取到京东商品信息");
+		return R.fail(400,"Feign未获取到京东商品信息");
 	}
 
 	/**
@@ -45,6 +45,6 @@ public class IJdGoodsClientFallback implements IJdGoodsClient {
 	 */
 	@Override
 	public R<JdGoodsVo> findJdCpsInfo(@RequestParam("goodsId") String goodsId, @RequestParam("wxUserId") String wxUserId, @RequestParam("returnMoneyShare") Integer returnMoneyShare) {
-		return R.fail(400,"未获取到京东商品推广信息");
+		return R.fail(400,"Feign未获取到京东商品推广信息");
 	}
 }

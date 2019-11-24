@@ -66,16 +66,28 @@ public class WxUser extends BaseEntity {
     private Long parentWxUserId;
 
 	/**
-	 * 返现比例
+	 * 自定义用户返现比例，0为不自定义，使用租户定义返现比例
 	 */
-	@ApiModelProperty(value = "返现比例")
+	@ApiModelProperty(value = "自定义用户返现比例，0为不自定义，使用租户定义返现比例")
 	private Integer returnMoneyShare;
 
 	/**
-	 * 提成比例
+	 * 自定义用户提成比例，0为不自定义，使用租户定义提成比例
 	 */
-	@ApiModelProperty(value = "提成比例")
+	@ApiModelProperty(value = "自定义用户提成比例，0为不自定义，使用租户定义提成比例")
 	private Integer returnMoneyShareTc;
+
+	/**
+	 * 租户所属用户默认返现比例
+	 */
+	@ApiModelProperty(value = "租户所属用户默认返现比例")
+	private Integer tenantReturnMoneyShare;
+
+	/**
+	 * 租户所属用户默认提成比例
+	 */
+	@ApiModelProperty(value = "租户所属用户默认提成比例")
+	private Integer tenantReturnMoneyShareTc;
 
     /**
      * 用户昵称

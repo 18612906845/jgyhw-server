@@ -1,5 +1,8 @@
 package cn.com.jgyhw.order.service.impl;
 
+import cn.com.jgyhw.account.entity.MoneyAccount;
+import cn.com.jgyhw.account.enums.AccountEnum;
+import cn.com.jgyhw.account.feign.IMoneyAccountClient;
 import cn.com.jgyhw.goods.entity.JdGoods;
 import cn.com.jgyhw.goods.feign.IJdGoodsClient;
 import cn.com.jgyhw.message.feign.IWxGzhMessageClient;
@@ -10,7 +13,9 @@ import cn.com.jgyhw.order.service.IJdOrderApiService;
 import cn.com.jgyhw.order.service.IOrderGoodsService;
 import cn.com.jgyhw.order.service.IOrderRecordService;
 import cn.com.jgyhw.order.vo.OrderRecordVo;
+import cn.com.jgyhw.order.vo.ReturnMoneyScaleVo;
 import cn.com.jgyhw.order.vo.UpdateOrderRespVo;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jd.open.api.sdk.DefaultJdClient;
 import com.jd.open.api.sdk.JdClient;
@@ -32,6 +37,7 @@ import org.springframework.cglib.beans.BeanCopier;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Service;
 
+import java.beans.Transient;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -48,8 +54,17 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 	@Value("${jgyhw.system.returnMoneyWxUserIdDefault}")
 	private Long returnMoneyWxUserIdDefault;
 
-	@Value("${jgyhw.system.returnMoneyShare}")
-	private Integer systemReturnMoneyShare;
+	@Value("${jgyhw.system.returnMoneyTenantIdDefault}")
+	private String returnMoneyTenantIdDefault;
+
+	@Value("${jgyhw.system.returnMoneyShareDefault}")
+	private Integer systemReturnMoneyShareDefault;
+
+	@Value("${jgyhw.system.returnMoneyShareTcDefault}")
+	private Integer systemReturnMoneyShareTcDefault;
+
+	@Value("${jgyhw.system.returnMoneyShareSyDefault}")
+	private Integer systemReturnMoneyShareSyDefault;
 
 	@Autowired
 	private IOrderRecordService orderRecordService;
@@ -66,6 +81,9 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 	@Autowired
 	private IWxGzhMessageClient wxGzhMessageSendService;
 
+	@Autowired
+	private IMoneyAccountClient moneyAccountClient;
+
 	/**
 	 * 更新京东订单信息
 	 *
@@ -75,8 +93,9 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 	 * @param pageNum       页码
 	 * @param pageSize      每页条数
 	 */
+	@Transient
 	@Override
-	public UpdateOrderRespVo updateJdOrderInfoByTime(String queryTimeStr, int queryTimeType, boolean isUnfreeze, int pageNum, int pageSize) {
+	public synchronized UpdateOrderRespVo updateJdOrderInfoByTime(String queryTimeStr, int queryTimeType, boolean isUnfreeze, int pageNum, int pageSize) {
 		log.info("更新京东订单信息，参数：查询时间：" + queryTimeStr + "；查询时间类型：" + queryTimeType +  "；是否解冻：" + isUnfreeze + " ；页数：" + pageNum + "；每页条数：" + pageSize);
 		UpdateOrderRespVo uorVo = new UpdateOrderRespVo();
 
@@ -290,7 +309,7 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 			}
 		}
 		if(isUnfreeze){
-//			unfreezeOrder(or, orderResp);
+			unfreezeOrder(or, orderResp);
 		}
 	}
 
@@ -299,7 +318,7 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 	 *
 	 * @param orderResp 订单对象
 	 */
-	/*private void unfreezeOrder(OrderRecord or, OrderResp orderResp){
+	private void unfreezeOrder(OrderRecord or, OrderResp orderResp){
 		if(or == null){
 			log.warn("京东订单结算，数据库无记录");
 			return;
@@ -310,84 +329,90 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 			or.getStatus().equals(OrderEnum.ORDER_STATUS_YQX.getKey())){
 			return;
 		}
-		// 更改京东订单状态为已入账
-		or.setStatus(OrderEnum.ORDER_STATUS_YRZ.getKey());
-
-		// 更新订单到数据库
-		updateOrderRecordByOrderResp(or, orderResp, true);
-
 		// 判断返现金额是否大于零
 		if(or.getReturnMoney() <= 0){
+			// 更改京东订单状态为已入账
+			or.setStatus(OrderEnum.ORDER_STATUS_YRZ.getKey());
+			// 更新订单到数据库
+			updateOrderRecordByOrderResp(or, orderResp, true);
 			return;
 		}
-
 		// 保存购买人入账信息
 		Long wxUserId = or.getWxUserId();
 		R<WxUser> wxUserR = wxUserClient.findWxUserById(wxUserId);
-		if(wxUserR.getCode() == 200){
+		if(wxUserR.getCode() == 200 && wxUserR.getData() != null && wxUserR.getData().getId() != null){
 			WxUser wu = wxUserR.getData();
-			if(wu != null && StringUtils.isNotBlank(wu.getOpenIdGzh())){
+			MoneyAccount ma = new MoneyAccount();
+			ma.setWxUserId(wu.getId());
+			ma.setChangeType(AccountEnum.CHANGE_TYPE_GWFX.getKey());
+			ma.setChangeMoney(or.getReturnMoney());
+			ma.setTargetJson(JSON.toJSONString(or));
+			// 发送购买人入账请求
+			R<Boolean> r = moneyAccountClient.addOrReduce(ma, "订单（" + or.getOrderId() + "）完成审核，返现已入账");
+			if(r.getCode() == 200 && r.getData() == true){
+				// 更改京东订单状态为已入账
+				or.setStatus(OrderEnum.ORDER_STATUS_YRZ.getKey());
+				// 更新订单到数据库
+				updateOrderRecordByOrderResp(or, orderResp, true);
+				log.error("发送购买人入账请求成功，订单信息：" + ma.getTargetJson());
+			}else{
+				log.error("发送购买人入账请求失败，订单信息：" + ma.getTargetJson());
+			}
 
-
-			}
-		}
-		WxUser wu = wxUserService.queryWxUserById(wxUserId);
-		Integer changeType = Integer.valueOf(ApplicationParamConstant.XT_PARAM_MAP.get("return_money_change_type_rz"));
-		ReturnMoneyChangeRecord rmcr = returnMoneyChangeRecordService.queryReturnMoneyChangeRecordByWxUserIdAndChangeTypeAndTargetIdAndOrderId(wxUserId, changeType, or.getId(), or.getOrderId());
-		if(rmcr == null){
-			rmcr = new ReturnMoneyChangeRecord();
-			rmcr.setId(UUID.randomUUID().toString());
-			rmcr.setWxUserId(wxUserId);
-			rmcr.setChangeType(changeType);
-			rmcr.setTargetId(or.getId());
-			rmcr.setChangeTime(new Date());
-			rmcr.setChangeMoney(or.getReturnMoney());
-			rmcr.setOrderId(or.getOrderId());
-			returnMoneyChangeRecordService.saveReturnMoneyChangeRecord(rmcr);
-			// 发送获得返现消息，判断用户是否关注公众号
-			if(wu != null && !StringUtils.isBlank(wu.getOpenIdGzh())){
-				this.sendRebateWxMessage(wxGzhMessageSendService, wu.getOpenIdGzh(), "订单（" + or.getOrderId() + "）完成审核，并已入账", rmcr.getChangeMoney());
-			}
-		}
-		// 保存推荐人提成入账信息
-		if(wu == null){
-			return;
-		}
-		// 查询推荐人用户信息
-		Long parentWxUserId = wu.getParentWxUserId();
-		if(parentWxUserId == null){
-			return;
-		}
-		WxUser pwu = wxUserService.queryWxUserById(parentWxUserId);
-		if(pwu == null){
-			return;
-		}
-		// 保存推荐人入账信息
-		Integer pChangeType = Integer.valueOf(ApplicationParamConstant.XT_PARAM_MAP.get("return_money_change_type_tc"));
-		ReturnMoneyChangeRecord pRmcr = returnMoneyChangeRecordService.queryReturnMoneyChangeRecordByWxUserIdAndChangeTypeAndTargetIdAndOrderId(pwu.getId(), pChangeType, String.valueOf(wxUserId), or.getOrderId());
-		if(pRmcr == null){
-			pRmcr = new ReturnMoneyChangeRecord();
-			pRmcr.setId(UUID.randomUUID().toString());
-			pRmcr.setWxUserId(pwu.getId());
-			pRmcr.setChangeType(pChangeType);
-			pRmcr.setTargetId(String.valueOf(wxUserId));
-			pRmcr.setChangeTime(new Date());
-			// 计算提成金额
-			int recommendTcScale = Integer.valueOf(ApplicationParamConstant.XT_PARAM_MAP.get("recommend_tc_scale"));
-			if(pwu.getReturnMoneyShareTc() > 0){
-				recommendTcScale = pwu.getReturnMoneyShareTc();
-			}
-			pRmcr.setChangeMoney(this.rebateCompute(or.getCommission(), recommendTcScale));
-			pRmcr.setOrderId(or.getOrderId());
-			if(pRmcr.getChangeMoney() > 0){// 提成大于0，保存记录并发送通知
-				returnMoneyChangeRecordService.saveReturnMoneyChangeRecord(pRmcr);
-				// 判断邀请人是否关注公众号
-				if(pwu != null && !StringUtils.isBlank(pwu.getOpenIdGzh())){
-					this.sendRebateWxMessage(wxGzhMessageSendService, pwu.getOpenIdGzh(), "您邀请的 " + wu.getNickName() + " 完成订单结算，提成奖励已入账", pRmcr.getChangeMoney());
+			// 保存推荐人不为空、且推荐人不是管理员的入账信息
+			if(wu.getParentWxUserId() != null && !returnMoneyWxUserIdDefault.equals(wu.getParentWxUserId())){
+				R<WxUser> parentWxUserR = wxUserClient.findWxUserById(wu.getParentWxUserId());
+				if(parentWxUserR.getCode() == 200 && parentWxUserR.getData() != null && parentWxUserR.getData().getId() != null){
+					WxUser pwu = parentWxUserR.getData();
+					// 设置推荐人提成比例为系统缺省值
+					int returnMoneyShareTc = systemReturnMoneyShareTcDefault;
+					int changeType = AccountEnum.CHANGE_TYPE_TGTC.getKey();
+					String changeTypeName = AccountEnum.CHANGE_TYPE_TGTC.getText();
+					if(StringUtils.isNotBlank(pwu.getTenantId())){
+						// 推荐人是租户，推广收益，设置为全局收益比例
+						returnMoneyShareTc = systemReturnMoneyShareSyDefault;
+						changeType = AccountEnum.CHANGE_TYPE_TGSY.getKey();
+						changeTypeName = AccountEnum.CHANGE_TYPE_TGSY.getText();
+					}else{
+						// 推荐人不是租户，推广提成，判断推荐人是否还有推荐人，并且推荐人的推荐人是租户的
+						if(pwu.getParentWxUserId() != null){
+							R<WxUser> parentParentWxUserR = wxUserClient.findWxUserById(pwu.getParentWxUserId());
+							if(parentParentWxUserR.getCode() == 200 && parentParentWxUserR.getData() != null && StringUtils.isNotBlank(parentParentWxUserR.getData().getTenantId())){
+								// 推荐人的推荐人是商户
+								WxUser ppWu = parentParentWxUserR.getData();
+								// 推荐人的推荐人自定义过提成
+								if(ppWu.getTenantReturnMoneyShareTc() != null && ppWu.getTenantReturnMoneyShareTc() > 0){
+									returnMoneyShareTc = ppWu.getReturnMoneyShareTc();
+								}
+							}
+						}
+						// 设置推广提成比例为推荐人自定义比例
+						if(pwu.getReturnMoneyShareTc() != null && pwu.getReturnMoneyShareTc() > 0){
+							returnMoneyShareTc = pwu.getReturnMoneyShareTc();
+						}
+					}
+					// 计算提成金额
+					Double returnMoneyTc = CommonUtil.rebateCompute(or.getCommission() - or.getReturnMoney(), returnMoneyShareTc);
+					MoneyAccount pma = new MoneyAccount();
+					pma.setWxUserId(pwu.getId());
+					pma.setChangeType(changeType);
+					pma.setChangeMoney(returnMoneyTc);
+					pma.setTargetJson(JSON.toJSONString(wu));
+					// 发送推荐人入账请求
+					R<Boolean> pr = moneyAccountClient.addOrReduce(pma, "您邀请的 " + wu.getNickName() + " 完成订单结算，" + changeTypeName + "已入账");
+					if(pr.getCode() == 200 && pr.getData() == true){
+						log.info("发送推荐人入账请求成功，推荐人信息：" + pma.getTargetJson());
+					}else{
+						log.error("发送推荐人入账请求失败，推荐人信息：" + pma.getTargetJson());
+					}
+				}else{
+					log.error("获取推荐人用户信息失败，订单信息：" + JSON.toJSONString(or));
 				}
 			}
+		}else{
+			log.error("获取购买人用户信息失败，订单信息：" + JSON.toJSONString(or));
 		}
-	}*/
+	}
 
 	/**
 	 * 新建京东订单
@@ -415,7 +440,7 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 			}
 		}
 		// 获取返现比例
-		int returnScale = getReturnScaleByExt1(ext1);
+		ReturnMoneyScaleVo rmsVo = getReturnScaleByExt1(ext1);
 
 		List<OrderGoods> ogList = new ArrayList<>();
 		int skuArrayLength = skuArray.length;
@@ -437,12 +462,12 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 				og.setName(si.getSkuName());
 				og.setImageUrl(getGoodsImageUrlBySkuId(si.getSkuId().toString()));
 			}
-			og.setReturnScale(returnScale);
+			og.setReturnScale(rmsVo.getReturnScale());
 
 			double estimateFee = si.getEstimateFee();
 			orderEstimateFeeCount += estimateFee;
 			// 计算返现
-			Double returnMoney = CommonUtil.rebateCompute(estimateFee, returnScale);
+			Double returnMoney = CommonUtil.rebateCompute(estimateFee, rmsVo.getReturnScale());
 			orderReturnMoneyCount += returnMoney;
 
 			// 将商品添加到订单集合
@@ -458,12 +483,10 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 		orderRecord.setReturnMoney(CommonUtil.formatDouble(orderReturnMoneyCount));
 		orderRecord.setPlatform(OrderEnum.ORDER_PLATFORM_JD.getKey());
 
-		// 获取微信用户标识
-		if(StringUtils.isBlank(ext1)){
-			orderRecord.setWxUserId(returnMoneyWxUserIdDefault);
-		}else{
-			orderRecord.setWxUserId(Long.valueOf(ext1));
-		}
+		// 设置订单所属用户
+		orderRecord.setWxUserId(rmsVo.getWxUserId());
+		// 设置订单所属租户
+		orderRecord.setTenantId(rmsVo.getParentTenantId());
 
 		OrderRecordVo orVo = new OrderRecordVo();
 		BeanCopier copier = BeanCopier.create(OrderRecord.class, OrderRecordVo.class, false);
@@ -515,7 +538,7 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 			orderEstimateFeeCount += estimateFee;
 
 			// 根据订单记录标识和商品编号查询订单商品返现比例
-			int goodsReturnScale = systemReturnMoneyShare;
+			int goodsReturnScale = systemReturnMoneyShareDefault;
 			OrderGoods og = orderGoodsService.getOne(Wrappers.<OrderGoods>lambdaQuery().eq(OrderGoods::getOrderRecordId, orderRecord.getId()).eq(OrderGoods::getCode, si.getSkuId()));
 			if(og != null){
 				goodsReturnScale = og.getReturnScale();
@@ -538,29 +561,51 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 	}
 
 	/**
-	 * 根据商品扩展字段获取用户返现比例
+	 * 根据商品扩展字段获取用户返现比例和推荐人租户ID
 	 *
 	 * @param ext1 扩展字段
 	 * @return
 	 */
-	private int getReturnScaleByExt1(String ext1){
+	private ReturnMoneyScaleVo getReturnScaleByExt1(String ext1){
 		log.info("根据商品扩展字段获取用户返现比例，扩展字段：" + ext1);
-		int returnScale = systemReturnMoneyShare;
+		ReturnMoneyScaleVo rmsVo = new ReturnMoneyScaleVo();
+		// 设置返现比例为系统缺省值
+		rmsVo.setReturnScale(systemReturnMoneyShareDefault);
+		// 设置返现接受用户为系统缺省值
+		rmsVo.setWxUserId(returnMoneyWxUserIdDefault);
+		// 设置返现接受租户为系统缺省值
+		rmsVo.setParentTenantId(returnMoneyTenantIdDefault);
 		if(StringUtils.isBlank(ext1)){
-			log.info("根据商品扩展字段获取用户返现比例，最终返现比例：" + returnScale + "%");
-			return returnScale;
+			log.info("根据商品扩展字段获取用户返现比例，最终返现比例：" + rmsVo.getReturnScale() + "%");
+			return rmsVo;
 		}
 		// 请求用户接口
 		Long wxUserId = Long.valueOf(ext1);
+		rmsVo.setWxUserId(wxUserId);
 		R<WxUser> wxUserR = wxUserClient.findWxUserById(wxUserId);
 		if(wxUserR.getCode() == 200){
 			WxUser wu = wxUserR.getData();
-			if(wu != null && wu.getId() != null && wu.getReturnMoneyShare() > 0){
-				returnScale = wu.getReturnMoneyShare();
+			if(wu != null && wu.getId() != null){
+				// 查询推荐人租户信息
+				if(wu.getParentWxUserId() != null){
+					R<WxUser> parentWxUserR = wxUserClient.findWxUserById(wu.getParentWxUserId());
+					if(parentWxUserR.getCode() == 200 && parentWxUserR.getData() != null && StringUtils.isNotBlank(parentWxUserR.getData().getTenantId())){
+						WxUser pwu = parentWxUserR.getData();
+						// 设置所属租户为推荐人租户
+						rmsVo.setParentTenantId(pwu.getTenantId());
+						if(pwu.getTenantReturnMoneyShare() != null && pwu.getTenantReturnMoneyShare() > 0){
+							// 按照租户自定义的默认返利比例
+							rmsVo.setReturnScale(pwu.getTenantReturnMoneyShare());
+						}
+					}
+				}
+				if(wu.getReturnMoneyShare() != null && wu.getReturnMoneyShare() > 0){
+					rmsVo.setReturnScale(wu.getReturnMoneyShare());
+				}
 			}
 		}
-		log.info("根据商品扩展字段获取用户返现比例，最终返现比例：" + returnScale + "%");
-		return returnScale;
+		log.info("根据商品扩展字段获取用户返现比例，最终返现比例：" + rmsVo.getReturnScale() + "%");
+		return rmsVo;
 	}
 
 	/**

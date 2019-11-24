@@ -70,6 +70,12 @@ public class OrderRecord extends BaseEntity {
 	private Long wxUserId;
 
 	/**
+	 * 租户ID
+	 */
+	@ApiModelProperty(value = "租户ID")
+	private String tenantId;
+
+	/**
 	 * 订单状态，1：待付款，2：已付款，3：已取消，4：已成团，5：已完成，6：已入账，7：无效
 	 */
 	@ApiModelProperty(value = "订单状态，1：待付款，2：已付款，3：已取消，4：已成团，5：已完成，6：已入账，7：无效")

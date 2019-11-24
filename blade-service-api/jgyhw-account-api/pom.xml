@@ -14,5 +14,11 @@
     <version>${jgyhw.project.version}</version>
     <packaging>jar</packaging>
 
-
+    <dependencies>
+        <dependency>
+            <groupId>org.springblade</groupId>
+            <artifactId>blade-common</artifactId>
+            <version>${blade.project.version}</version>
+        </dependency>
+    </dependencies>
 </project>
