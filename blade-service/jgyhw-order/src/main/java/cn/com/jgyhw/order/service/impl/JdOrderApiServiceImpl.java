@@ -22,7 +22,6 @@ import jd.union.open.order.query.response.UnionOpenOrderQueryResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springblade.common.constant.JdParamConstant;
-import org.springblade.common.constant.JgyhwConstant;
 import org.springblade.common.tool.CommonUtil;
 import org.springblade.core.tool.api.R;
 import org.springblade.system.user.entity.WxUser;
