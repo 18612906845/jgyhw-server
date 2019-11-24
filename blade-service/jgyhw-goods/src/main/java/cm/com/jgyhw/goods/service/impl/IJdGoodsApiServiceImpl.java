@@ -3,6 +3,7 @@ package cm.com.jgyhw.goods.service.impl;
 import cm.com.jgyhw.goods.service.IJdGoodsApiService;
 import cm.com.jgyhw.goods.service.IJdGoodsService;
 import cn.com.jgyhw.goods.entity.JdGoods;
+import com.alibaba.fastjson.JSON;
 import com.jd.open.api.sdk.DefaultJdClient;
 import com.jd.open.api.sdk.JdClient;
 import com.jd.open.api.sdk.JdException;
@@ -99,6 +100,7 @@ public class IJdGoodsApiServiceImpl implements IJdGoodsApiService {
 		if(promotionCodeReq == null){
 			return null;
 		}
+		log.info("根据参数查询京东推广链接，参数：" + JSON.toJSONString(promotionCodeReq));
 		String jdCpsUrl = null;
 		JdClient client = new DefaultJdClient(JdParamConstant.API_SERVER_URL, "", JdParamConstant.APP_KEY, JdParamConstant.APP_SECRET);
 		UnionOpenPromotionCommonGetRequest request = new UnionOpenPromotionCommonGetRequest();

@@ -10,7 +10,7 @@ import lombok.Data;
  * Created by WangLei on 2019/11/21 0021 22:53
  */
 @Data
-@ApiModel(value = "京东商品信息对象", description = "京东商品信息对象")
+@ApiModel(value = "京东商品信息", description = "京东商品信息")
 public class JdGoods extends BaseGoods {
 
 	/**

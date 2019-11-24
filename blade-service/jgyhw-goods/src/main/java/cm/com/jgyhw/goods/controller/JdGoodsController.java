@@ -2,7 +2,9 @@ package cm.com.jgyhw.goods.controller;
 
 import cm.com.jgyhw.goods.service.IJdGoodsApiService;
 import cm.com.jgyhw.goods.service.IJdGoodsService;
+import cm.com.jgyhw.goods.service.IJdPositionService;
 import cn.com.jgyhw.goods.entity.JdGoods;
+import cn.com.jgyhw.goods.entity.JdPosition;
 import cn.com.jgyhw.goods.vo.JdGoodsVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -37,6 +39,9 @@ public class JdGoodsController {
 
 	@Resource(name = "jdGoodsServiceRedisImpl")
 	private IJdGoodsService jdGoodsServiceRedis;
+
+	@Autowired
+	private IJdPositionService jdPositionService;
 
 	/**
 	 * 根据京东商品编号获取商品主图地址
@@ -90,6 +95,11 @@ public class JdGoodsController {
 		}
 		PromotionCodeReq pcr = new PromotionCodeReq();
 		pcr.setExt1(wxUserId);
+		// 查询对应用户的JD推广位信息
+		JdPosition jp = jdPositionService.queryJdPositionByWxUserId(Long.valueOf(wxUserId));
+		if(jp != null){
+			pcr.setPositionId(jp.getPositionId());
+		}
 		pcr.setMaterialId(jdGoods.getMaterialUrl());
 		pcr.setSiteId(JdParamConstant.JD_WEB_ID);
 		String cpsUrl = jdGoodsApiService.queryJdCpsUrl(pcr);
