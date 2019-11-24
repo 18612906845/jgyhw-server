@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springblade.core.tool.api.R;
 import org.springblade.system.user.entity.WxUser;
 import org.springblade.system.user.feign.IWxUserClient;
+import org.springblade.system.user.vo.WxUserReturnMoneyScaleVo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,16 +66,19 @@ public class WxGzhTextMessageDisposeThread implements Runnable {
 		R<WxUser> wxUserR = wxUserClient.findWxUserByOpenIdGzh(receiveGzhOpenId);
 		if(wxUserR.getCode() == 200){
 			WxUser wu = wxUserR.getData();
-			if(wu == null || wu.getId() == null){
+			if(wu == null || wu.getId() == null || StringUtils.isBlank(wu.getUnionId())){// 无登录信息
 				// 调用消息发送接口，发送登陆链接文字消息
 				wxGzhMessageService.sendTextMessage(receiveGzhOpenId, loginMessageContent);
 				log.info("用户【" + receiveGzhOpenId + "】未登录，发送登陆链接消息");
-			}else{
-				// 查询商品信息
-				Integer returnMoneyShare = wu.getReturnMoneyShare();
-				if(returnMoneyShare == null || returnMoneyShare < 1){
-					returnMoneyShare = systemReturnMoneyShare;
+			}else{// 有登陆信息
+				// 获取用户的返现比例
+				Integer returnMoneyShare = systemReturnMoneyShare;
+				R<WxUserReturnMoneyScaleVo> wurmsVoR = wxUserClient.findWxUserReturnMoneyScaleVoById(wu.getId());
+				if(wurmsVoR.getCode() == 200 && wurmsVoR.getData() != null && wurmsVoR.getData().getReturnScale() > 0){
+					WxUserReturnMoneyScaleVo wurmsVo = wurmsVoR.getData();
+					returnMoneyShare = wurmsVo.getReturnScale();
 				}
+				// 查询商品信息
 				R<JdGoodsVo> jdGoodsVoR = jdGoodsClient.findJdCpsInfo(goodsId, String.valueOf(wu.getId()), returnMoneyShare);
 				if(jdGoodsVoR.getCode() == 200){
 					JdGoodsVo jgVo = jdGoodsVoR.getData();
