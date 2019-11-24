@@ -1,4 +1,4 @@
-package cm.com.jgyhw.goods.config;
+package cn.com.jgyhw.goods.config;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.Configuration;

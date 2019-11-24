@@ -1,8 +1,8 @@
-package cm.com.jgyhw.goods.service.impl;
+package cn.com.jgyhw.goods.service.impl;
 
-import cm.com.jgyhw.goods.mapper.JdPositionMapper;
-import cm.com.jgyhw.goods.service.IJdPositionService;
 import cn.com.jgyhw.goods.entity.JdPosition;
+import cn.com.jgyhw.goods.mapper.JdPositionMapper;
+import cn.com.jgyhw.goods.service.IJdPositionService;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.extern.slf4j.Slf4j;

@@ -1,7 +1,7 @@
-package cm.com.jgyhw.goods.service.impl;
+package cn.com.jgyhw.goods.service.impl;
 
-import cm.com.jgyhw.goods.service.IJdGoodsApiService;
-import cm.com.jgyhw.goods.service.IJdGoodsService;
+import cn.com.jgyhw.goods.service.IJdGoodsApiService;
+import cn.com.jgyhw.goods.service.IJdGoodsService;
 import cn.com.jgyhw.goods.entity.JdGoods;
 import com.alibaba.fastjson.JSON;
 import com.jd.open.api.sdk.DefaultJdClient;

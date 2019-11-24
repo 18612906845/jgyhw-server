@@ -1,4 +1,4 @@
-package cm.com.jgyhw.goods.service;
+package cn.com.jgyhw.goods.service;
 
 import cn.com.jgyhw.goods.entity.JdGoods;
 import jd.union.open.promotion.common.get.request.PromotionCodeReq;

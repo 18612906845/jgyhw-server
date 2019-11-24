@@ -1,4 +1,4 @@
-package cm.com.jgyhw.goods;
+package cn.com.jgyhw.goods;
 
 import org.springblade.common.constant.JgyhwConstant;
 import org.springblade.core.launch.BladeApplication;

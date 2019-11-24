@@ -1,4 +1,4 @@
-package cm.com.jgyhw.goods.mapper;
+package cn.com.jgyhw.goods.mapper;
 
 import cn.com.jgyhw.goods.entity.JdPosition;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;

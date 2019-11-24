@@ -1,6 +1,6 @@
-package cm.com.jgyhw.goods.service.impl;
+package cn.com.jgyhw.goods.service.impl;
 
-import cm.com.jgyhw.goods.service.IJdGoodsService;
+import cn.com.jgyhw.goods.service.IJdGoodsService;
 import cn.com.jgyhw.goods.entity.JdGoods;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;

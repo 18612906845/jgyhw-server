@@ -1,7 +1,7 @@
-package cm.com.jgyhw.goods.controller;
+package cn.com.jgyhw.goods.controller;
 
-import cm.com.jgyhw.goods.service.IJdPositionService;
 import cn.com.jgyhw.goods.entity.JdPosition;
+import cn.com.jgyhw.goods.service.IJdPositionService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiOperationSupport;

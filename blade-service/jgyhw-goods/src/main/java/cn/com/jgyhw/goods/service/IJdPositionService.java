@@ -1,4 +1,4 @@
-package cm.com.jgyhw.goods.service;
+package cn.com.jgyhw.goods.service;
 
 import cn.com.jgyhw.goods.entity.JdPosition;
 import org.springblade.core.mp.base.BaseService;
