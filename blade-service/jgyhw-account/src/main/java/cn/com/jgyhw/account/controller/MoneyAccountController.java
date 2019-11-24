@@ -7,6 +7,7 @@ import com.alibaba.fastjson.JSON;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiOperationSupport;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springblade.core.tool.api.R;
@@ -49,7 +50,7 @@ public class MoneyAccountController {
 	@PostMapping("/addOrReduce")
 	@ApiOperationSupport(order = 1)
 	@ApiOperation(value = "进/出账操作", notes = "")
-	public R<Boolean> addOrReduce(MoneyAccount moneyAccount, String describe){
+	public R<Boolean> addOrReduce(MoneyAccount moneyAccount, @ApiParam(value = "操作描述", required = true) String describe){
 		boolean flag = moneyAccountService.saveMoneyAccount(moneyAccount);
 		if(moneyAccount.getChangeMoney() <= 0){
 			log.info("流水变更小于等于0，不发送通知消息，流水账目对象：" + JSON.toJSONString(moneyAccount));
