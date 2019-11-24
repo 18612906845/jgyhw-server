@@ -1,6 +1,7 @@
 package cn.com.jgyhw.order.vo;
 
 import cn.com.jgyhw.order.entity.OrderGoods;
+import cn.com.jgyhw.order.entity.OrderRecord;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -15,7 +16,7 @@ import java.util.List;
  */
 @Data
 @ApiModel(value = "订单记录Vo对象", description = "订单记录Vo对象")
-public class OrderRecordVo extends OrderGoods {
+public class OrderRecordVo extends OrderRecord {
 
 	/**
 	 * 订单商品集合
