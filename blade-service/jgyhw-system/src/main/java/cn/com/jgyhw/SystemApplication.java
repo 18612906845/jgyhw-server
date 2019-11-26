@@ -12,7 +12,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  * @date 2019/11/26 14:29
  */
 @SpringCloudApplication
-@EnableFeignClients(basePackages = {"cn.com.jgyhw.account"})
+@EnableFeignClients(basePackages = {"cn.com.jgyhw"})
 public class SystemApplication {
 
 	public static void main(String[] args) {

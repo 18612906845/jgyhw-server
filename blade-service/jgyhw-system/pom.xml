@@ -25,6 +25,11 @@
             <artifactId>jgyhw-system-api</artifactId>
             <version>${jgyhw.project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>cn.com.jgyhw</groupId>
+            <artifactId>jgyhw-goods-api</artifactId>
+            <version>${jgyhw.project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

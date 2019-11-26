@@ -4,13 +4,13 @@ import cn.com.jgyhw.goods.feign.IJdGoodsClient;
 import cn.com.jgyhw.goods.vo.JdGoodsVo;
 import cn.com.jgyhw.mesage.service.IWxGzhMessageService;
 import cn.com.jgyhw.message.vo.ArticleVo;
+import cn.com.jgyhw.user.entity.WxUser;
+import cn.com.jgyhw.user.feign.IWxUserClient;
+import cn.com.jgyhw.user.vo.WxUserReturnMoneyScaleVo;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springblade.core.tool.api.R;
-import org.springblade.system.user.entity.WxUser;
-import org.springblade.system.user.feign.IWxUserClient;
-import org.springblade.system.user.vo.WxUserReturnMoneyScaleVo;
 
 import java.util.ArrayList;
 import java.util.List;
