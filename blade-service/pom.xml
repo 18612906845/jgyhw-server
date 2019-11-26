@@ -17,12 +17,10 @@
     <description>SpringBlade 微服务集合</description>
 
     <modules>
-        <module>blade-user</module>
-        <module>jgyhw-message</module>
         <module>jgyhw-goods</module>
-        <module>jgyhw-token</module>
         <module>jgyhw-order</module>
         <module>jgyhw-account</module>
+        <module>jgyhw-system</module>
     </modules>
 
     <dependencies>

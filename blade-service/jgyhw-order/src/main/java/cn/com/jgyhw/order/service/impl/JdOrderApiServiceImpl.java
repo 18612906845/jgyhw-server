@@ -16,6 +16,9 @@ import cn.com.jgyhw.order.service.IOrderGoodsService;
 import cn.com.jgyhw.order.service.IOrderRecordService;
 import cn.com.jgyhw.order.vo.OrderRecordVo;
 import cn.com.jgyhw.order.vo.UpdateOrderRespVo;
+import cn.com.jgyhw.user.entity.WxUser;
+import cn.com.jgyhw.user.feign.IWxUserClient;
+import cn.com.jgyhw.user.vo.WxUserReturnMoneyScaleVo;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jd.open.api.sdk.DefaultJdClient;
@@ -30,9 +33,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springblade.common.constant.JdParamConstant;
 import org.springblade.common.tool.CommonUtil;
 import org.springblade.core.tool.api.R;
-import org.springblade.system.user.entity.WxUser;
-import org.springblade.system.user.feign.IWxUserClient;
-import org.springblade.system.user.vo.WxUserReturnMoneyScaleVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cglib.beans.BeanCopier;
@@ -53,19 +53,19 @@ import java.util.List;
 @Service
 public class JdOrderApiServiceImpl implements IJdOrderApiService {
 
-	@Value("${jgyhw.system.returnMoneyWxUserIdDefault}")
+	@Value("${jgyhw.user.returnMoneyWxUserIdDefault}")
 	private Long returnMoneyWxUserIdDefault;
 
-	@Value("${jgyhw.system.returnMoneyTenantIdDefault}")
+	@Value("${jgyhw.user.returnMoneyTenantIdDefault}")
 	private String returnMoneyTenantIdDefault;
 
-	@Value("${jgyhw.system.returnMoneyShareDefault}")
+	@Value("${jgyhw.user.returnMoneyShareDefault}")
 	private Integer systemReturnMoneyShareDefault;
 
-	@Value("${jgyhw.system.returnMoneyShareTcDefault}")
+	@Value("${jgyhw.user.returnMoneyShareTcDefault}")
 	private Integer systemReturnMoneyShareTcDefault;
 
-	@Value("${jgyhw.system.returnMoneyShareSyDefault}")
+	@Value("${jgyhw.user.returnMoneyShareSyDefault}")
 	private Integer systemReturnMoneyShareSyDefault;
 
 	@Autowired

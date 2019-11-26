@@ -47,23 +47,18 @@
             <version>${jgyhw.project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.springblade</groupId>
-            <artifactId>blade-user-api</artifactId>
-            <version>${blade.project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>cn.com.jgyhw</groupId>
             <artifactId>jgyhw-goods-api</artifactId>
             <version>${jgyhw.project.version}</version>
         </dependency>
         <dependency>
             <groupId>cn.com.jgyhw</groupId>
-            <artifactId>jgyhw-message-api</artifactId>
+            <artifactId>jgyhw-account-api</artifactId>
             <version>${jgyhw.project.version}</version>
         </dependency>
         <dependency>
             <groupId>cn.com.jgyhw</groupId>
-            <artifactId>jgyhw-account-api</artifactId>
+            <artifactId>jgyhw-system-api</artifactId>
             <version>${jgyhw.project.version}</version>
         </dependency>
     </dependencies>

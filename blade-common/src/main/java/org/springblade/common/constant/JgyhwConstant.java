@@ -8,19 +8,14 @@ package org.springblade.common.constant;
 public interface JgyhwConstant {
 
 	/**
-	 * 消息服务名称
+	 * 系统服务名称
 	 */
-	String APPLICATION_MESSAGE_NAME = "jgyhw-message";
+	String APPLICATION_SYSTEM_NAME = "jgyhw-system";
 
 	/**
 	 * 商品服务名称
 	 */
 	String APPLICATION_GOODS_NAME = "jgyhw-goods";
-
-	/**
-	 * 令牌服务名称
-	 */
-	String APPLICATION_TOKEN_NAME = "jgyhw-token";
 
 	/**
 	 * 订单服务名称

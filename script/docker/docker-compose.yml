@@ -134,7 +134,7 @@ services:
     - blade_net
 
   blade-system:
-    image: "${REGISTER}/blade/blade-system:${TAG}"
+    image: "${REGISTER}/blade/blade-user:${TAG}"
     privileged: true
     restart: always
     networks:

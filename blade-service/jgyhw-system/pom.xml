@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>cn.com.jgyhw</groupId>
-    <artifactId>jgyhw-account</artifactId>
+    <artifactId>jgyhw-system</artifactId>
     <version>${jgyhw.project.version}</version>
     <packaging>jar</packaging>
 
@@ -21,19 +21,10 @@
             <version>${blade.tool.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.springblade</groupId>
-            <artifactId>blade-core-swagger</artifactId>
-            <version>${blade.tool.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>cn.com.jgyhw</groupId>
-            <artifactId>jgyhw-account-api</artifactId>
-            <version>${jgyhw.project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>cn.com.jgyhw</groupId>
             <artifactId>jgyhw-system-api</artifactId>
             <version>${jgyhw.project.version}</version>
         </dependency>
     </dependencies>
+
 </project>

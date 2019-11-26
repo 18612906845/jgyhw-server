@@ -16,12 +16,10 @@
     <description>SpringBlade 微服务API集合</description>
 
     <modules>
-        <module>blade-user-api</module>
-        <module>jgyhw-message-api</module>
         <module>jgyhw-goods-api</module>
-        <module>jgyhw-token-api</module>
         <module>jgyhw-order-api</module>
         <module>jgyhw-account-api</module>
+        <module>jgyhw-system-api</module>
     </modules>
 
     <dependencies>
