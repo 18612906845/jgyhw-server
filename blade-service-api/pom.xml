@@ -16,11 +16,7 @@
     <description>SpringBlade 微服务API集合</description>
 
     <modules>
-        <module>blade-desk-api</module>
-        <module>blade-dict-api</module>
-        <module>blade-system-api</module>
         <module>blade-user-api</module>
-        <module>blade-demo-api</module>
         <module>jgyhw-message-api</module>
         <module>jgyhw-goods-api</module>
         <module>jgyhw-token-api</module>

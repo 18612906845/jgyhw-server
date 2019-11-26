@@ -17,11 +17,7 @@
     <description>SpringBlade 微服务集合</description>
 
     <modules>
-        <module>blade-desk</module>
-        <module>blade-log</module>
-        <module>blade-system</module>
         <module>blade-user</module>
-        <module>blade-demo</module>
         <module>jgyhw-message</module>
         <module>jgyhw-goods</module>
         <module>jgyhw-token</module>
