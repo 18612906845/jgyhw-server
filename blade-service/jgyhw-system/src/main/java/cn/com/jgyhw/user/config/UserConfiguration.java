@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * 系统服务配置类
+ * 用户服务配置类
  *
  * @author wanglei@citms.cn
  * @date 2019/11/26 14:34

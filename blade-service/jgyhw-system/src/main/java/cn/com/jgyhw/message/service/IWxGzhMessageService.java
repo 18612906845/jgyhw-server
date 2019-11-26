@@ -1,4 +1,4 @@
-package cn.com.jgyhw.mesage.service;
+package cn.com.jgyhw.message.service;
 
 import cn.com.jgyhw.message.vo.ArticleVo;
 import cn.com.jgyhw.message.vo.TemplateMessageVo;

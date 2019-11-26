@@ -1,6 +1,6 @@
-package cn.com.jgyhw.mesage.service.impl;
+package cn.com.jgyhw.message.service.impl;
 
-import cn.com.jgyhw.mesage.service.IWxGzhMessageService;
+import cn.com.jgyhw.message.service.IWxGzhMessageService;
 import cn.com.jgyhw.message.constant.MessageConstant;
 import cn.com.jgyhw.message.vo.ArticleVo;
 import cn.com.jgyhw.message.vo.TemplateMessageVo;

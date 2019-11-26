@@ -1,4 +1,4 @@
-package cn.com.jgyhw.mesage.util;
+package cn.com.jgyhw.message.util;
 
 import cn.com.jgyhw.message.vo.*;
 import com.thoughtworks.xstream.XStream;

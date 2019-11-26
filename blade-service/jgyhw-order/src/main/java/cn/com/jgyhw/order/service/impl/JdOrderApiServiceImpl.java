@@ -53,19 +53,19 @@ import java.util.List;
 @Service
 public class JdOrderApiServiceImpl implements IJdOrderApiService {
 
-	@Value("${jgyhw.user.returnMoneyWxUserIdDefault}")
+	@Value("${jgyhw.system.returnMoneyWxUserIdDefault}")
 	private Long returnMoneyWxUserIdDefault;
 
-	@Value("${jgyhw.user.returnMoneyTenantIdDefault}")
+	@Value("${jgyhw.system.returnMoneyTenantIdDefault}")
 	private String returnMoneyTenantIdDefault;
 
-	@Value("${jgyhw.user.returnMoneyShareDefault}")
+	@Value("${jgyhw.system.returnMoneyShareDefault}")
 	private Integer systemReturnMoneyShareDefault;
 
-	@Value("${jgyhw.user.returnMoneyShareTcDefault}")
+	@Value("${jgyhw.system.returnMoneyShareTcDefault}")
 	private Integer systemReturnMoneyShareTcDefault;
 
-	@Value("${jgyhw.user.returnMoneyShareSyDefault}")
+	@Value("${jgyhw.system.returnMoneyShareSyDefault}")
 	private Integer systemReturnMoneyShareSyDefault;
 
 	@Autowired

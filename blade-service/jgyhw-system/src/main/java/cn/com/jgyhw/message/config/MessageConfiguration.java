@@ -1,4 +1,4 @@
-package cn.com.jgyhw.mesage.config;
+package cn.com.jgyhw.message.config;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;

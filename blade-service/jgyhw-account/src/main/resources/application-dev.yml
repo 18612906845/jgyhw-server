@@ -1,6 +1,6 @@
 #服务器端口
 server:
-  port: 9104
+  port: 9004
 
 #数据源配置
 spring:

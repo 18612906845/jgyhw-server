@@ -1,13 +1,13 @@
-package cn.com.jgyhw.mesage.controller;
+package cn.com.jgyhw.message.controller;
 
 import cn.com.jgyhw.goods.feign.IJdGoodsClient;
-import cn.com.jgyhw.mesage.service.IWxGzhMessageService;
-import cn.com.jgyhw.mesage.thread.WxGzhTextMessageDisposeThread;
-import cn.com.jgyhw.mesage.util.CheckoutUtil;
-import cn.com.jgyhw.mesage.util.WxGzhMessageUtil;
+import cn.com.jgyhw.message.service.IWxGzhMessageService;
+import cn.com.jgyhw.message.thread.WxGzhTextMessageDisposeThread;
+import cn.com.jgyhw.message.util.CheckoutUtil;
+import cn.com.jgyhw.message.util.WxGzhMessageUtil;
 import cn.com.jgyhw.message.vo.TemplateMessageVo;
 import cn.com.jgyhw.message.vo.TextMessageVo;
-import cn.com.jgyhw.user.feign.IWxUserClient;
+import cn.com.jgyhw.user.service.IWxUserService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiOperationSupport;
 import io.swagger.annotations.ApiParam;
@@ -58,7 +58,7 @@ public class WxGzhMessageController {
 	@Value("${jgyhw.jd.regexpExtractUrlJdGoodsId}")
 	private String regexpExtractUrlJdGoodsId;
 
-	@Value("${jgyhw.user.returnMoneyShareDefault}")
+	@Value("${jgyhw.system.returnMoneyShareDefault}")
 	private Integer systemReturnMoneyShareDefault;
 
 	@Value("${jgyhw.wxGzh.templateMessageIdDdqr}")
@@ -77,10 +77,10 @@ public class WxGzhMessageController {
 	private CheckoutUtil checkoutUtil;
 
 	@Autowired
-	private IWxUserClient wxUserClient;
+	private IJdGoodsClient jdGoodsClient;
 
 	@Autowired
-	private IJdGoodsClient jdGoodsClient;
+	private IWxUserService wxUserService;
 
 	@Autowired
 	private IWxGzhMessageService wxGzhMessageService;
@@ -364,7 +364,7 @@ public class WxGzhMessageController {
 					wgtmdt.setReceiveGzhOpenId(fromUserName);
 					wgtmdt.setLoginMessageContent(loginMessageContent);
 					wgtmdt.setSystemReturnMoneyShareDefault(systemReturnMoneyShareDefault);
-					wgtmdt.setWxUserClient(wxUserClient);
+					wgtmdt.setWxUserService(wxUserService);
 					wgtmdt.setJdGoodsClient(jdGoodsClient);
 					wgtmdt.setWxGzhMessageService(wxGzhMessageService);
 					new Thread(wgtmdt, "文字消息处理线程" + System.currentTimeMillis()).start();
