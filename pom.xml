@@ -37,6 +37,7 @@
         <dom4j.version>1.6.1</dom4j.version>
         <xstream.version>1.4.7</xstream.version>
         <org.codehaus.jackson.version>1.9.13</org.codehaus.jackson.version>
+        <xxl.job.version>2.1.1</xxl.job.version>
     </properties>
 
     <modules>
