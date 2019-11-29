@@ -14,7 +14,11 @@ import org.springblade.core.tool.api.R;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 微信用户控制器
@@ -75,6 +79,18 @@ public class WxUserController {
 	@ApiOperation(value = "根据微信用户标识获取返现/提成/收益比例、推荐人租户信息", notes = "")
 	public R<WxUserReturnMoneyScaleVo> findWxUserReturnMoneyScaleVoById(@ApiParam(value = "用户标识", required = true) Long wxUserId){
 		return R.data(wxUserService.findWxUserReturnMoneyScaleVoById(wxUserId));
+	}
+
+	/**
+	 * 查询我的邀请总数
+	 *
+	 * @param loginKey 登陆标识
+	 * @return
+	 */
+	@GetMapping("/findMyInviteSum")
+	public R<Integer> findMyInviteSum(Long loginKey){
+		int userSum = wxUserService.count(Wrappers.<WxUser>lambdaQuery().eq(WxUser::getParentWxUserId, loginKey));
+		return R.data(userSum);
 	}
 
 }

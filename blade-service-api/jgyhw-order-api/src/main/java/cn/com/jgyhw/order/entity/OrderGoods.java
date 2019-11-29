@@ -3,6 +3,8 @@ package cn.com.jgyhw.order.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -23,6 +25,7 @@ public class OrderGoods extends BaseEntity {
 	/**
 	 * 标识
 	 */
+	@JsonSerialize(using = ToStringSerializer.class)
 	@TableId(value = "og_id", type = IdType.ID_WORKER)
 	@ApiModelProperty(value = "标识")
 	private Long ogId;
@@ -48,6 +51,7 @@ public class OrderGoods extends BaseEntity {
 	/**
 	 * 订单记录标识
 	 */
+	@JsonSerialize(using = ToStringSerializer.class)
 	@ApiModelProperty(value = "订单记录标识")
 	private Long orderRecordId;
 

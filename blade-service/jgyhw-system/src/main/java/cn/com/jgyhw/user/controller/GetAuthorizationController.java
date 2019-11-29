@@ -1,18 +1,23 @@
 package cn.com.jgyhw.user.controller;
 
 import cn.com.jgyhw.user.entity.WxUser;
+import cn.com.jgyhw.user.entity.WxXcxSessionKey;
 import cn.com.jgyhw.user.service.IWxUserService;
+import cn.com.jgyhw.user.service.IWxXcxSessionKeyService;
+import cn.com.jgyhw.user.util.WxXcxUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springblade.common.constant.WxGzhParamConstant;
+import org.springblade.common.constant.WxXcxParamConstant;
+import org.springblade.core.tool.api.R;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
@@ -48,6 +53,9 @@ public class GetAuthorizationController {
 
 	@Autowired
 	private IWxUserService wxUserService;
+
+	@Autowired
+	private IWxXcxSessionKeyService wxXcxSessionKeyService;
 
 	/**
 	 * 通过临时凭证Code获取微信公众号用户信息
@@ -162,6 +170,122 @@ public class GetAuthorizationController {
 			resultMap = null;
 		}
 		return resultMap;
+	}
+
+	/**
+	 * 通过临时凭证Code获取微信小程序OpenId和SessionKey
+	 *
+	 * @param code 临时凭证
+	 * @return
+	 */
+	@GetMapping("/getXcxOpenIdAndSessionKeyByCode")
+	@ResponseBody
+	public R<String> getXcxOpenIdAndSessionKeyByCode(String code){
+
+		String url = WxXcxParamConstant.WX_XCX_GET_OPENID_REQ_URL;
+		url = url.replaceAll("APPID", WxXcxParamConstant.APP_ID);
+		url = url.replaceAll("SECRET", WxXcxParamConstant.APP_SECRET);
+		url = url.replaceAll("JSCODE", code);
+
+		String resp = restTemplate.getForObject(url, String.class);
+		log.info("通过临时凭证Code获取微信小程序OpenId和SessionKey结果：" + resp);
+		if(StringUtils.isNotBlank(resp)){
+			JSONObject respJsonObj = JSONObject.parseObject(resp);
+			if(respJsonObj.containsKey("openid") && respJsonObj.containsKey("session_key")){
+				String openId = respJsonObj.getString("openid");
+				WxXcxSessionKey wxsk = wxXcxSessionKeyService.getOne(Wrappers.<WxXcxSessionKey>lambdaQuery().eq(WxXcxSessionKey::getOpenId, openId));
+				if(wxsk == null){
+					wxsk = new WxXcxSessionKey();
+				}
+				wxsk.setOpenId(openId);
+				wxsk.setSessionKey(respJsonObj.getString("session_key"));
+				wxXcxSessionKeyService.saveOrUpdate(wxsk);
+				return R.data(wxsk.getId().toString());
+			}else{
+				log.error("通过临时凭证Code获取微信小程序OpenId和SessionKey，错误编号：" + respJsonObj.getString("errcode") + "；错误描述：" + respJsonObj.getString("errmsg"));
+				return R.status(false);
+			}
+		}else{
+			log.error("通过临时凭证Code获取微信小程序OpenId和SessionKey结果为空");
+			return R.status(false);
+		}
+	}
+
+	/**
+	 * 获取微信用户UnionId
+	 *
+	 * @param encryptedData 加密数据字符串
+	 * @param tempId 会话密匙临时表id
+	 * @param iv 自定义对称解密算法初始向量
+	 * @return
+	 */
+	@GetMapping("/getWxUserUnionId")
+	@ResponseBody
+	public R<String> getWxUserUnionId(String tempId, String encryptedData, String iv){
+
+		WxXcxSessionKey wxsk = wxXcxSessionKeyService.getById(tempId);
+		if(wxsk == null){
+			log.error("会话密匙数据不存在，会话密匙临时表id：" + tempId);
+			return R.status(false);
+		}
+
+		if(StringUtils.isBlank(wxsk.getSessionKey())){
+			log.error("会话密匙为空");
+			return R.status(false);
+		}
+
+		String encryptedDataResult = WxXcxUtil.decryptData(encryptedData, wxsk.getSessionKey(), iv);
+
+		if(StringUtils.isBlank(encryptedDataResult)){
+			log.error("msg", "解析失败");
+			return R.status(false);
+		}
+		log.info("解析微信小程序用户信息结果：" + encryptedDataResult);
+		JSONObject jsonObj = JSONObject.parseObject(encryptedDataResult);
+
+		String unionId = jsonObj.getString("unionId");
+		WxUser wu = wxUserService.getOne(Wrappers.<WxUser>lambdaQuery().eq(WxUser::getUnionId, unionId));
+		if (wu == null) {
+			wu = new WxUser();
+			wu.setCreateTime(new Date());
+		}
+		wu.setOpenIdXcx(jsonObj.getString("openId"));
+		wu.setSessionKeyXcx(wxsk.getSessionKey());
+		wu.setUnionId(unionId);
+		wu.setNickName(jsonObj.getString("nickName"));
+		wu.setSex(jsonObj.getInteger("gender"));
+		wu.setProvince(jsonObj.getString("province"));
+		wu.setCity(jsonObj.getString("city"));
+		wu.setCountry(jsonObj.getString("country"));
+		wu.setHeadImgUrl(jsonObj.getString("avatarUrl"));
+		wu.setUpdateTime(new Date());
+		wxUserService.saveOrUpdate(wu);
+
+		return R.data(wu.getId().toString());
+	}
+
+	/**
+	 * 同步微信用户公共信息
+	 *
+	 * @param wxUser 微信用户信息
+	 * @return
+	 */
+	@PostMapping("/syncWxUserCommonInfo")
+	@ResponseBody
+	public R syncWxUserCommonInfo(@RequestBody WxUser wxUser){
+		// 查询用户信息
+		WxUser wu = wxUserService.getById(wxUser.getId());
+		if(wu != null){
+			wu.setNickName(wxUser.getNickName());
+			wu.setSex(wxUser.getSex());
+			wu.setProvince(wxUser.getProvince());
+			wu.setCity(wxUser.getCity());
+			wu.setCountry(wxUser.getCountry());
+			wu.setHeadImgUrl(wxUser.getHeadImgUrl());
+			wu.setUpdateTime(new Date());
+			wxUserService.updateById(wu);
+		}
+		return R.status(true);
 	}
 
 }

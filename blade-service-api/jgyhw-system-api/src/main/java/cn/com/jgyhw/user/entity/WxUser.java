@@ -3,6 +3,8 @@ package cn.com.jgyhw.user.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -19,6 +21,7 @@ public class WxUser extends BaseEntity {
 	/**
 	 * 主键id
 	 */
+	@JsonSerialize(using = ToStringSerializer.class)
 	@TableId(value = "id", type = IdType.ID_WORKER)
 	@ApiModelProperty(value = "主键id")
     private Long id;
@@ -63,6 +66,7 @@ public class WxUser extends BaseEntity {
      * 推荐人微信用户标识
      */
 	@ApiModelProperty(value = "推荐人微信用户标识")
+	@JsonSerialize(using = ToStringSerializer.class)
     private Long parentWxUserId;
 
 	/**

@@ -2,4 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.com.jgyhw.account.mapper.MoneyAccountMapper">
 
+    <select id="selectMoneyAccountBalance" resultType="java.lang.Double">
+        select balance from jgyhw_money_account where wx_user_id = #{wxUserId} order by update_time desc limit 0, 1
+    </select>
 </mapper>

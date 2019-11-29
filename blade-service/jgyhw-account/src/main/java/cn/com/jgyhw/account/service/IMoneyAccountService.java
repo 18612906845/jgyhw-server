@@ -17,4 +17,11 @@ public interface IMoneyAccountService extends BaseService<MoneyAccount> {
 	 */
 	boolean saveMoneyAccount(MoneyAccount moneyAccount);
 
+	/**
+	 * 根据用户标识查询可提现金额
+	 *
+	 * @param wxUserId 用户标识
+	 * @return
+	 */
+	Double queryMoneyAccountBalance(Long wxUserId);
 }

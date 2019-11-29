@@ -1,6 +1,8 @@
 package cn.com.jgyhw.goods.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -19,6 +21,7 @@ public class JdPosition extends BaseEntity {
 	/**
 	 * 京东推广位ID
 	 */
+	@JsonSerialize(using = ToStringSerializer.class)
 	@ApiModelProperty(value = "京东推广位ID")
 	private Long id;
 
@@ -31,6 +34,7 @@ public class JdPosition extends BaseEntity {
 	/**
 	 * 微信用户标识
 	 */
+	@JsonSerialize(using = ToStringSerializer.class)
 	@ApiModelProperty(value = "微信用户标识")
 	private Long wxUserId;
 }

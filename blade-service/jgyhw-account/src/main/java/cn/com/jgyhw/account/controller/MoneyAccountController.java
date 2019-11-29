@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springblade.core.tool.api.R;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -63,5 +64,16 @@ public class MoneyAccountController {
 			wxGzhMessageClient.sendRebateWxMessage(wxUserR.getData().getOpenIdGzh(), describe, moneyAccount.getChangeMoney());
 		}
 		return R.data(flag);
+	}
+
+	/**
+	 * 查询账户余额
+	 *
+	 * @param loginKey 微信登陆标识
+	 * @return
+	 */
+	@GetMapping("/findMoneyAccountBalance")
+	public R<Double> findMoneyAccountBalance(Long loginKey){
+		return R.data(moneyAccountService.queryMoneyAccountBalance(loginKey));
 	}
 }

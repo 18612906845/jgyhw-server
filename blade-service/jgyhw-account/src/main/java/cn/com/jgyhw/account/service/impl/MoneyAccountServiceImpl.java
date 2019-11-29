@@ -56,4 +56,16 @@ public class MoneyAccountServiceImpl extends BaseServiceImpl<MoneyAccountMapper,
 		int size = baseMapper.insert(moneyAccount);
 		return size > 0;
 	}
+
+	/**
+	 * 根据用户标识查询可提现金额
+	 *
+	 * @param wxUserId 用户标识
+	 * @return
+	 */
+	@Override
+	public Double queryMoneyAccountBalance(Long wxUserId) {
+		Double balance = baseMapper.selectMoneyAccountBalance(wxUserId);
+		return balance == null ? 0D : balance;
+	}
 }

@@ -3,6 +3,8 @@ package cn.com.jgyhw.account.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -23,6 +25,7 @@ public class MoneyAccount extends BaseEntity {
 	/**
 	 * 主键id
 	 */
+	@JsonSerialize(using = ToStringSerializer.class)
 	@TableId(value = "id", type = IdType.ID_WORKER)
 	@ApiModelProperty(value = "主键id")
 	private Long id;
@@ -30,6 +33,7 @@ public class MoneyAccount extends BaseEntity {
 	/**
 	 * 微信用户标识
 	 */
+	@JsonSerialize(using = ToStringSerializer.class)
 	@ApiModelProperty(value = "微信用户标识")
 	private Long wxUserId;
 

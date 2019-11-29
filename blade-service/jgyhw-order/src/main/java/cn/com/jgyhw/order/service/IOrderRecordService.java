@@ -22,4 +22,6 @@ public interface IOrderRecordService extends BaseService<OrderRecord> {
 	 * 根据订单ID删除订单及订单商品集合
 	 */
 	void deleteOrderRecord(Long orderId);
+
+
 }

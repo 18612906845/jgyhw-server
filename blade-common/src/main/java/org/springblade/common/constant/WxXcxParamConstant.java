@@ -21,4 +21,9 @@ public interface WxXcxParamConstant {
 	 * 微信小程序ServiceApi Token Redis Key前缀
 	 */
 	String WX_XCX_SERVICE_API_TOKEN_KEY_PREFIX = "wxServiceApiTokenKey:xcx:";
+
+	/**
+	 * 微信小程序获取OpenId SessionKey 请求地址
+	 */
+	String WX_XCX_GET_OPENID_REQ_URL = "https://api.weixin.qq.com/sns/jscode2session?appid=APPID&secret=SECRET&js_code=JSCODE&grant_type=authorization_code";
 }
