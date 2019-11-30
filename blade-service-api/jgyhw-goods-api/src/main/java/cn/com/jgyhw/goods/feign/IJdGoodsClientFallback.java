@@ -36,15 +36,16 @@ public class IJdGoodsClientFallback implements IJdGoodsClient {
 	}
 
 	/**
-	 * 根据商品编号、微信用户标识获取京东商品推广信息（包含商品信息和推广链接）
+	 * 根据关键词查询京东推广信息（包含商品信息和推广链接）
 	 *
-	 * @param goodsId          商品编号
+	 * @param keyword          关键字
 	 * @param wxUserId         微信用户标识
 	 * @param returnMoneyShare 返现比例
 	 * @return
 	 */
 	@Override
-	public R<JdGoodsVo> findJdCpsInfo(@RequestParam("goodsId") String goodsId, @RequestParam("wxUserId") String wxUserId, @RequestParam("returnMoneyShare") Integer returnMoneyShare) {
+	public R<JdGoodsVo> findJdCpsInfoByKeyword(@RequestParam("keyword") String keyword, @RequestParam("wxUserId") String wxUserId, @RequestParam("returnMoneyShare") Integer returnMoneyShare) {
 		return R.fail(400,"Feign未获取到京东商品推广信息");
 	}
+
 }

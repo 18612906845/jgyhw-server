@@ -6,6 +6,8 @@ import cn.com.jgyhw.goods.service.IJdPositionService;
 import cn.com.jgyhw.goods.entity.JdGoods;
 import cn.com.jgyhw.goods.entity.JdPosition;
 import cn.com.jgyhw.goods.vo.JdGoodsVo;
+import cn.com.jgyhw.user.feign.IWxUserClient;
+import cn.com.jgyhw.user.vo.WxUserReturnMoneyScaleVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiOperationSupport;
@@ -16,12 +18,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.springblade.common.constant.JdParamConstant;
 import org.springblade.core.tool.api.R;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cglib.beans.BeanCopier;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 京东商品控制器
@@ -29,10 +35,23 @@ import javax.annotation.Resource;
  * Created by WangLei on 2019/11/22 0022 00:37
  */
 @Slf4j
+@RefreshScope
 @RestController
 @RequestMapping("/jdGoods")
 @Api(value = "京东商品", tags = "京东商品")
 public class JdGoodsController {
+
+	@Value("${jgyhw.jd.regexpAllNumber}")
+	private String regexpAllNumber;
+
+	@Value("${jgyhw.jd.regexpVerifyJdGoodsPageUrl}")
+	private String regexpVerifyJdGoodsPageUrl;
+
+	@Value("${jgyhw.jd.regexpExtractUrlJdGoodsId}")
+	private String regexpExtractUrlJdGoodsId;
+
+	@Value("${jgyhw.system.returnMoneyShareDefault}")
+	private Integer systemReturnMoneyShareDefault;
 
 	@Autowired
 	private IJdGoodsApiService jdGoodsApiService;
@@ -42,6 +61,9 @@ public class JdGoodsController {
 
 	@Autowired
 	private IJdPositionService jdPositionService;
+
+	@Autowired
+	private IWxUserClient wxUserClient;
 
 	/**
 	 * 根据京东商品编号获取商品主图地址
@@ -76,19 +98,45 @@ public class JdGoodsController {
 	}
 
 	/**
-	 * 根据京东商品编号、微信用户标识获取商品推广信息（包含商品信息和推广链接）
+	 * 根据关键词查询京东推广信息（包含商品信息和推广链接）
 	 *
-	 * @param goodsId 商品编号
+	 * @param keyword 关键词
 	 * @param wxUserId 微信用户标识
 	 * @param returnMoneyShare 返现比例
 	 * @return
 	 */
-	@GetMapping("/findJdCpsInfo")
-	@ApiOperationSupport(order = 3)
-	@ApiOperation(value = "根据京东商品编号、微信用户标识获取商品推广链接", notes = "")
-	public R<JdGoodsVo> findJdCpsInfo(@ApiParam(value = "商品编号", required = true) String goodsId,
-									  @ApiParam(value = "微信用户标识", required = true) String wxUserId,
-									  @ApiParam(value = "返现比例", required = true) Integer returnMoneyShare){
+	@GetMapping("/findJdCpsInfoByKeyword")
+	public R<JdGoodsVo> findJdCpsInfoByKeyword(String keyword, String wxUserId, Integer returnMoneyShare){
+		//验证关键字是否是全部数字
+		if(StringUtils.isBlank(keyword) || StringUtils.isBlank(wxUserId)){
+			return R.status(false);
+		}
+		keyword = keyword.trim();
+		String goodsId = "";
+		Pattern numberPattern = Pattern.compile(regexpAllNumber);
+		//验证关键字是否是网址
+		Pattern urlPattern = Pattern.compile(regexpVerifyJdGoodsPageUrl);
+		if(numberPattern.matcher(keyword).matches()){
+			goodsId = keyword;
+		}else if(urlPattern.matcher(keyword).matches()){
+			// 提取URL里的商品编号
+			Pattern pattern = Pattern.compile(regexpExtractUrlJdGoodsId);
+			Matcher m = pattern.matcher(keyword);
+			while (m.find()) {
+				goodsId += m.group(1);
+			}
+		}
+		// 判断返现比例是否有填写
+		if(returnMoneyShare == null){
+			R<WxUserReturnMoneyScaleVo> wxUserReturnMoneyScaleVoR = wxUserClient.findWxUserReturnMoneyScaleVoById(Long.valueOf(wxUserId));
+			if(wxUserReturnMoneyScaleVoR.getCode() == 200 && wxUserReturnMoneyScaleVoR.getData() != null && wxUserReturnMoneyScaleVoR.getData().getWxUserId() != null){
+				WxUserReturnMoneyScaleVo wurmsVo = wxUserReturnMoneyScaleVoR.getData();
+				returnMoneyShare = wurmsVo.getReturnScale();
+			}else{
+				returnMoneyShare = systemReturnMoneyShareDefault;
+			}
+		}
+
 		JdGoods jdGoods = jdGoodsApiService.reqJdApiGetJdGoodsByGoodsId(goodsId, returnMoneyShare);
 		if(jdGoods == null || StringUtils.isBlank(wxUserId)){
 			return R.data(null);

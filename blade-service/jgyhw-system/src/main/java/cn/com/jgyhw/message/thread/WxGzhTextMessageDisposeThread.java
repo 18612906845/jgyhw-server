@@ -77,7 +77,7 @@ public class WxGzhTextMessageDisposeThread implements Runnable {
 				returnMoneyShare = wurmsVo.getReturnScale();
 			}
 			// 查询商品信息
-			R<JdGoodsVo> jdGoodsVoR = jdGoodsClient.findJdCpsInfo(goodsId, String.valueOf(wu.getId()), returnMoneyShare);
+			R<JdGoodsVo> jdGoodsVoR = jdGoodsClient.findJdCpsInfoByKeyword(goodsId, String.valueOf(wu.getId()), returnMoneyShare);
 			if(jdGoodsVoR.getCode() == 200){
 				JdGoodsVo jgVo = jdGoodsVoR.getData();
 				if(jgVo == null || StringUtils.isBlank(jgVo.getGoodsId())){
