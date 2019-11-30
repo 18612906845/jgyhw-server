@@ -3,6 +3,8 @@ package cn.com.jgyhw.account.service;
 import cn.com.jgyhw.account.entity.MoneyAccount;
 import org.springblade.core.mp.base.BaseService;
 
+import java.util.Map;
+
 /**
  * 流水账目服务类
  *
@@ -15,13 +17,13 @@ public interface IMoneyAccountService extends BaseService<MoneyAccount> {
 	 *
 	 * @param moneyAccount 流水账目对象
 	 */
-	boolean saveMoneyAccount(MoneyAccount moneyAccount);
+	Map<String, Object> saveMoneyAccount(MoneyAccount moneyAccount);
 
 	/**
-	 * 根据用户标识查询可提现金额
+	 * 根据用户标识查询最新流水账目记录
 	 *
 	 * @param wxUserId 用户标识
 	 * @return
 	 */
-	Double queryMoneyAccountBalance(Long wxUserId);
+	MoneyAccount queryNewMoneyAccount(Long wxUserId);
 }

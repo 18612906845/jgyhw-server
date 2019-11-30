@@ -62,9 +62,45 @@ public class MoneyAccount extends BaseEntity {
 	private Double balance;
 
 	/**
+	 * 累计提现
+	 */
+	@ApiModelProperty(value = "累计提现")
+	private Double returnMoneySum;
+
+	/**
 	 * 关联主体Json字符串
 	 */
 	@ApiModelProperty(value = "关联主体Json字符串")
 	private String targetJson;
+
+	/**
+	 * 支付时间
+	 */
+	private Date payTime;
+
+	/**
+	 * 支付状态，1：待支付；2：已支付；3：支付失败
+	 */
+	private Integer payStatus;
+
+	/**
+	 * 商户订单号
+	 */
+	private String partnerTradeNo;
+
+	/**
+	 * 微信付款单号
+	 */
+	private String paymentNo;
+
+	/**
+	 * 错误代码
+	 */
+	private String errCode;
+
+	/**
+	 * 错误代码描述
+	 */
+	private String errCodeDes;
 
 }

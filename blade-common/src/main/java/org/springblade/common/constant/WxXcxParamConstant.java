@@ -26,4 +26,19 @@ public interface WxXcxParamConstant {
 	 * 微信小程序获取OpenId SessionKey 请求地址
 	 */
 	String WX_XCX_GET_OPENID_REQ_URL = "https://api.weixin.qq.com/sns/jscode2session?appid=APPID&secret=SECRET&js_code=JSCODE&grant_type=authorization_code";
+
+	/**
+	 * 微信支付Api地址
+	 */
+	String WX_PAY_BY_API_URL = "https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers";
+
+	/**
+	 * 微信支付商户号
+	 */
+	String WX_PAY_BY_MCHID = "1509830291";
+
+	/**
+	 * 微信支付Key
+	 */
+	String WX_PAY_BY_KEY = "b755047666639eeaf48a840eb4f54ab4";
 }

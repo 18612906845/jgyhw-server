@@ -19,7 +19,7 @@ import io.micrometer.core.instrument.util.StringUtils;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.*;
 
 /**
  * 通用工具类
@@ -118,6 +118,40 @@ public class CommonUtil {
 		SimpleDateFormat sdf = new SimpleDateFormat(format);
 		dateStr = sdf.format(date);
 		return dateStr;
+	}
+
+	/**
+	 * 获取随机字符串
+	 * @return
+	 */
+	public static String getRandomString() {
+		int machineId = 1;//最大支持1-9个集群机器部署
+		int hashCodeV = UUID.randomUUID().toString().hashCode();
+		if(hashCodeV < 0) {//有可能是负数
+			hashCodeV = - hashCodeV;
+		}
+		String randomStr = machineId + String.format("%05d", hashCodeV);
+		String timeStr = String.valueOf(System.currentTimeMillis());
+		timeStr = timeStr.substring(3, timeStr.length());
+		randomStr += timeStr;
+		return randomStr;
+	}
+
+	/**
+	 * 获取商户订单号
+	 * @return
+	 */
+	public static String getShopOrderString() {
+		int machineId = 1;//最大支持1-9个集群机器部署
+		int hashCodeV = UUID.randomUUID().toString().hashCode();
+		if(hashCodeV < 0) {//有可能是负数
+			hashCodeV = - hashCodeV;
+		}
+		String randomStr = "JGYHWDH" + machineId + String.format("%05d", hashCodeV);
+		String timeStr = String.valueOf(System.currentTimeMillis());
+		timeStr = timeStr.substring(3, timeStr.length());
+		randomStr += timeStr;
+		return randomStr;
 	}
 
 }

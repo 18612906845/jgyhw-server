@@ -12,7 +12,11 @@ public enum AccountEnum {
 	CHANGE_TYPE_TGTC(3, "推广提成"),
 	CHANGE_TYPE_YXJL(4, "邀新奖励"),
 	CHANGE_TYPE_TGSY(5, "推广收益"),
-	CHANGE_TYPE_CCSY(6, "抽成收益");
+	CHANGE_TYPE_CCSY(6, "抽成收益"),
+
+	PLAY_STATUS_DZF(1, "待支付"),
+	PLAY_STATUS_YZF(2, "已支付"),
+	PLAY_STATUS_ZFSB(3, "支付失败");
 
 	private int key;
 

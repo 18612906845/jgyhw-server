@@ -25,6 +25,33 @@
             <artifactId>blade-core-swagger</artifactId>
             <version>${blade.tool.version}</version>
         </dependency>
+        <!-- HttpClient -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${http.components.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpmime</artifactId>
+            <version>${http.components.version}</version>
+        </dependency>
+        <!-- JD SDK -->
+        <dependency>
+            <groupId>myLocalJar.jdlm</groupId>
+            <artifactId>jd-cps-client</artifactId>
+            <version>2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>${org.codehaus.jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-core-asl</artifactId>
+            <version>${org.codehaus.jackson.version}</version>
+        </dependency>
         <dependency>
             <groupId>cn.com.jgyhw</groupId>
             <artifactId>jgyhw-account-api</artifactId>

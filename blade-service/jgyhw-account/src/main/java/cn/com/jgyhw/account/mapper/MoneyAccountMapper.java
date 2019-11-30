@@ -12,10 +12,10 @@ import org.apache.ibatis.annotations.Param;
 public interface MoneyAccountMapper extends BaseMapper<MoneyAccount> {
 
 	/**
-	 * 查询用户余额
+	 * 查询最新流水账目记录
 	 *
 	 * @param wxUserId 微信用户标识
 	 * @return
 	 */
-	Double selectMoneyAccountBalance(@Param("wxUserId") Long wxUserId);
+	MoneyAccount selectNewMoneyAccount(@Param("wxUserId") Long wxUserId);
 }

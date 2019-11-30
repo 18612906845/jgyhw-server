@@ -38,6 +38,7 @@
         <xstream.version>1.4.7</xstream.version>
         <org.codehaus.jackson.version>1.9.13</org.codehaus.jackson.version>
         <xxl.job.version>2.1.1</xxl.job.version>
+        <http.components.version>4.5.3</http.components.version>
     </properties>
 
     <modules>
