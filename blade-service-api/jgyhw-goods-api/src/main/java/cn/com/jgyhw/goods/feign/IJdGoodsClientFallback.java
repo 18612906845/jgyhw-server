@@ -41,10 +41,11 @@ public class IJdGoodsClientFallback implements IJdGoodsClient {
 	 * @param keyword          关键字
 	 * @param wxUserId         微信用户标识
 	 * @param returnMoneyShare 返现比例
+	 * @param type             "gzh"：公众号（默认），"xcx"：小程序
 	 * @return
 	 */
 	@Override
-	public R<JdGoodsVo> findJdCpsInfoByKeyword(@RequestParam("keyword") String keyword, @RequestParam("wxUserId") String wxUserId, @RequestParam("returnMoneyShare") Integer returnMoneyShare) {
+	public R<JdGoodsVo> findJdCpsInfoByKeyword(@RequestParam("keyword") String keyword, @RequestParam("wxUserId") String wxUserId, @RequestParam("returnMoneyShare") Integer returnMoneyShare, @RequestParam("type") String type) {
 		return R.fail(400,"Feign未获取到京东商品推广信息");
 	}
 

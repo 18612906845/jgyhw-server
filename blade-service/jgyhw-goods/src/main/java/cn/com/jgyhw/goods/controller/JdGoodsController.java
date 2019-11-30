@@ -1,5 +1,6 @@
 package cn.com.jgyhw.goods.controller;
 
+import cn.com.jgyhw.goods.apith.SignAndSend;
 import cn.com.jgyhw.goods.entity.JdGoods;
 import cn.com.jgyhw.goods.entity.JdPosition;
 import cn.com.jgyhw.goods.service.IJdGoodsApiService;
@@ -8,6 +9,7 @@ import cn.com.jgyhw.goods.service.IJdPositionService;
 import cn.com.jgyhw.goods.vo.JdGoodsVo;
 import cn.com.jgyhw.user.entity.WxUser;
 import cn.com.jgyhw.user.feign.IWxUserClient;
+import com.alibaba.fastjson.JSONObject;
 import jd.union.open.promotion.common.get.request.PromotionCodeReq;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -94,10 +96,11 @@ public class JdGoodsController {
 	 * @param keyword 关键词
 	 * @param wxUserId 微信用户标识
 	 * @param returnMoneyShare 返现比例
+	 * @param type "gzh"：公众号（默认），"xcx"：小程序
 	 * @return
 	 */
 	@GetMapping("/findJdCpsInfoByKeyword")
-	public R<JdGoodsVo> findJdCpsInfoByKeyword(String keyword, String wxUserId, Integer returnMoneyShare){
+	public R<JdGoodsVo> findJdCpsInfoByKeyword(String keyword, String wxUserId, Integer returnMoneyShare, String type){
 		//验证关键字是否是全部数字
 		if(StringUtils.isBlank(keyword) || StringUtils.isBlank(wxUserId)){
 			return R.status(false);
@@ -142,7 +145,30 @@ public class JdGoodsController {
 		}
 		pcr.setMaterialId(jdGoods.getMaterialUrl());
 		pcr.setSiteId(JdParamConstant.JD_WEB_ID);
+		// 默认获取公众号推广链接
 		String cpsUrl = jdGoodsApiService.queryJdCpsUrl(pcr);
+		// 判断是否小程序
+		if(StringUtils.isNotBlank(type) && JdParamConstant.SPS_TYPE_XCX.equals(type)){
+			String url = JdParamConstant.JD_TRANSITION_CPS_URL_OTHER;
+			if (StringUtils.isBlank(url)) {
+				return null;
+			}
+			url = url.replaceAll("MATERIAL_ID", jdGoods.getMaterialUrl());
+			url = url.replaceAll("UNION_ID", JdParamConstant.JD_UNION_ID);
+			if(jp != null){
+				url = url.replaceAll("POSITION_ID", jp.getId().toString());
+			}
+			String respContent = SignAndSend.sendGet(url, JdParamConstant.APITH_SECRET_ID, JdParamConstant.APITH_SECRET_KEY);
+			log.info("获取小程序推广链接结果：" + respContent);
+			if (StringUtils.isNotBlank(respContent)) {
+				JSONObject jsonObject = JSONObject.parseObject(respContent);
+				String code = jsonObject.getString("code");
+				if ("1".equals(code)) {
+					JSONObject dataJsonObj = jsonObject.getJSONObject("data");
+					cpsUrl = dataJsonObj.getString("shortURL");
+				}
+			}
+		}
 
 		JdGoodsVo jgVo = new JdGoodsVo();
 		BeanCopier copier = BeanCopier.create(JdGoods.class, JdGoodsVo.class, false);

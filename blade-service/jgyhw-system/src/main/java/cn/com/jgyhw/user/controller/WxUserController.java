@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Date;
+
 /**
  * 微信用户控制器
  *
@@ -64,6 +66,36 @@ public class WxUserController {
 	public R<Integer> findMyInviteSum(Long loginKey){
 		int userSum = wxUserService.count(Wrappers.<WxUser>lambdaQuery().eq(WxUser::getParentWxUserId, loginKey));
 		return R.data(userSum);
+	}
+
+	/**
+	 * 根据登陆标识查询用户并绑定推荐人标识
+	 *
+	 * @param loginKey 登陆标识
+	 * @param parentWxUserId 推荐人标识
+	 * @return
+	 */
+	@RequestMapping("/bindingParentWxUserId")
+	public R bindingParentWxUserId(Long loginKey, Long parentWxUserId){
+		if(loginKey == null || parentWxUserId == null){
+			return R.status(false);
+		}
+		if(loginKey.equals(parentWxUserId)){
+			return R.status(false);
+		}
+
+		WxUser wu = wxUserService.getById(loginKey);
+		if(wu == null){
+			return R.status(false);
+		}
+		if(wu.getParentWxUserId() == null){
+			wu.setParentWxUserId(parentWxUserId);
+			wu.setUpdateTime(new Date());
+			wxUserService.updateById(wu);
+			return R.data("恭喜您已成功被邀请");
+		}else{
+			return R.data("您已经绑定过其他推荐人");
+		}
 	}
 
 }

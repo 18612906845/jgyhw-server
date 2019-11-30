@@ -45,8 +45,9 @@ public interface IJdGoodsClient {
 	 * @param keyword 关键字
 	 * @param wxUserId 微信用户标识
 	 * @param returnMoneyShare 返现比例
+	 * @param type "gzh"：公众号（默认），"xcx"：小程序
 	 * @return
 	 */
 	@GetMapping(API_PREFIX + "/findJdCpsInfoByKeyword")
-	R<JdGoodsVo> findJdCpsInfoByKeyword(@RequestParam("keyword") String keyword, @RequestParam("wxUserId") String wxUserId, @RequestParam("returnMoneyShare") Integer returnMoneyShare);
+	R<JdGoodsVo> findJdCpsInfoByKeyword(@RequestParam("keyword") String keyword, @RequestParam("wxUserId") String wxUserId, @RequestParam("returnMoneyShare") Integer returnMoneyShare, @RequestParam("type") String type);
 }

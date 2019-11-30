@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springblade.common.constant.JdParamConstant;
 import org.springblade.core.tool.api.R;
 
 import java.util.ArrayList;
@@ -75,7 +76,7 @@ public class WxGzhTextMessageDisposeThread implements Runnable {
 				returnMoneyShare = wu.getReturnMoneyShare();
 			}
 			// 查询商品信息
-			R<JdGoodsVo> jdGoodsVoR = jdGoodsClient.findJdCpsInfoByKeyword(goodsId, String.valueOf(wu.getId()), returnMoneyShare);
+			R<JdGoodsVo> jdGoodsVoR = jdGoodsClient.findJdCpsInfoByKeyword(goodsId, String.valueOf(wu.getId()), returnMoneyShare, JdParamConstant.SPS_TYPE_GZH);
 			if(jdGoodsVoR.getCode() == 200){
 				JdGoodsVo jgVo = jdGoodsVoR.getData();
 				if(jgVo == null || StringUtils.isBlank(jgVo.getGoodsId())){

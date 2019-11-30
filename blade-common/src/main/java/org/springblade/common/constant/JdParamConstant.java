@@ -13,6 +13,11 @@ public interface JdParamConstant {
 	String JD_WEB_ID = "1537716146";
 
 	/**
+	 * 京东联盟ID
+	 */
+	String JD_UNION_ID = "1000455975";
+
+	/**
 	 * 京东推广Key
 	 */
 	String APP_KEY = "9ff8aec6cc17485c82523851a18d48bd";
@@ -31,4 +36,29 @@ public interface JdParamConstant {
 	 * 京东商品Redis Key前缀
 	 */
 	String JD_GOODS_KEY_PREFIX = "jdGoodsKey:";
+
+	/**
+	 * 第三方接口地址
+	 */
+	String JD_TRANSITION_CPS_URL_OTHER = "https://jd.vip.apith.cn/unionv2/getByUnionidPromotion?materialId=MATERIAL_ID&unionId=UNION_ID&positionId=POSITION_ID";
+
+	/**
+	 * 第三方接口权限ID
+	 */
+	String APITH_SECRET_ID = "AKIDmyhsw3cTB6fSV9lrY461L1xh60NHQM7p80JI";
+
+	/**
+	 * 第三方接口权限Key
+	 */
+	String APITH_SECRET_KEY = "ibvdorgx4lD5oddzkz8cbCDs4w5a1d4ceW6iyc72";
+
+	/**
+	 * 推广链接类型-小程序
+	 */
+	String SPS_TYPE_GZH = "gzh";
+
+	/**
+	 * 推广链接类型-小程序
+	 */
+	String SPS_TYPE_XCX = "xcx";
 }
