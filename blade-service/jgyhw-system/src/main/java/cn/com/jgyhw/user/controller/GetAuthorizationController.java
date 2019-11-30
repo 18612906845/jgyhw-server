@@ -2,6 +2,7 @@ package cn.com.jgyhw.user.controller;
 
 import cn.com.jgyhw.user.entity.WxUser;
 import cn.com.jgyhw.user.entity.WxXcxSessionKey;
+import cn.com.jgyhw.user.enums.UserEnum;
 import cn.com.jgyhw.user.service.IWxUserService;
 import cn.com.jgyhw.user.service.IWxXcxSessionKeyService;
 import cn.com.jgyhw.user.util.WxXcxUtil;
@@ -105,6 +106,8 @@ public class GetAuthorizationController {
 					wu.setCity(respJsonObj.getString("city"));
 					wu.setHeadImgUrl(respJsonObj.getString("headimgurl"));
 					wu.setUpdateTime(new Date());
+					wu.setStatus(UserEnum.WX_USER_STATUS_GZGZH.getKey());
+
 					wxUserService.saveOrUpdate(wu);
 					log.info("用户登陆成功，创建/更新用户信息：" + wu.toString());
 					String nickName = "";
@@ -248,7 +251,6 @@ public class GetAuthorizationController {
 			wu.setCreateTime(new Date());
 		}
 		wu.setOpenIdXcx(jsonObj.getString("openId"));
-		wu.setSessionKeyXcx(wxsk.getSessionKey());
 		wu.setUnionId(unionId);
 		wu.setNickName(jsonObj.getString("nickName"));
 		wu.setSex(jsonObj.getInteger("gender"));

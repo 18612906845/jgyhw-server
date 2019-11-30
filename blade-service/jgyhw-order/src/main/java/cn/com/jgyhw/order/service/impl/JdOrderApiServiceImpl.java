@@ -18,7 +18,7 @@ import cn.com.jgyhw.order.vo.OrderRecordVo;
 import cn.com.jgyhw.order.vo.UpdateOrderRespVo;
 import cn.com.jgyhw.user.entity.WxUser;
 import cn.com.jgyhw.user.feign.IWxUserClient;
-import cn.com.jgyhw.user.vo.WxUserReturnMoneyScaleVo;
+import cn.com.jgyhw.user.vo.FxAndTcShareVo;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jd.open.api.sdk.DefaultJdClient;
@@ -56,17 +56,11 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 	@Value("${jgyhw.system.returnMoneyWxUserIdDefault}")
 	private Long returnMoneyWxUserIdDefault;
 
-	@Value("${jgyhw.system.returnMoneyTenantIdDefault}")
-	private String returnMoneyTenantIdDefault;
-
 	@Value("${jgyhw.system.returnMoneyShareDefault}")
 	private Integer systemReturnMoneyShareDefault;
 
 	@Value("${jgyhw.system.returnMoneyShareTcDefault}")
 	private Integer systemReturnMoneyShareTcDefault;
-
-	@Value("${jgyhw.system.returnMoneyShareSyDefault}")
-	private Integer systemReturnMoneyShareSyDefault;
 
 	@Autowired
 	private IOrderRecordService orderRecordService;
@@ -365,52 +359,23 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 			}
 
 			// 保存推荐人的入账信息
-			if(wu.getParentWxUserId() != null){// 有推荐人
-				WxUserReturnMoneyScaleVo wurmsVo = getReturnScaleByWxUserId(wxUserId);
+			if(wu.getParentWxUserId() != null && wu.getParentWxUserId() != -1){// 有推荐人
+				FxAndTcShareVo fatsVo = getUserFxAndTcShareByWxUserId(wu.getParentWxUserId());
 				// 计算提成金额
-				Double returnMoneyTc = CommonUtil.rebateCompute(or.getCommission() - or.getReturnMoney(), wurmsVo.getParentReturnScaleTc());
-				int changeType = AccountEnum.CHANGE_TYPE_TGTC.getKey();
-				String changeTypeName = AccountEnum.CHANGE_TYPE_TGTC.getText();
-				if(wurmsVo.getParentWxUserIdIsTenant()){
-					changeType = AccountEnum.CHANGE_TYPE_TGSY.getKey();
-					changeTypeName = AccountEnum.CHANGE_TYPE_TGSY.getText();
-				}
+				Double returnMoneyTc = CommonUtil.rebateCompute(or.getCommission() - or.getReturnMoney(), fatsVo.getTcShare());
+
 				MoneyAccount pma = new MoneyAccount();
-				pma.setWxUserId(wurmsVo.getParentWxUserId() == null ? wu.getParentWxUserId() : wurmsVo.getParentWxUserId());
-				pma.setChangeType(changeType);
+				pma.setWxUserId(wu.getParentWxUserId());
+				pma.setChangeType(AccountEnum.CHANGE_TYPE_TGTC.getKey());
 				pma.setChangeMoney(returnMoneyTc);
 				pma.setTargetJson(JSON.toJSONString(wu));
 				// 发送推荐人入账请求
-				R<Boolean> pr = moneyAccountClient.addOrReduce(pma, "您邀请的 " + wu.getNickName() + " 完成订单结算，" + changeTypeName + "已入账");
+				R<Boolean> pr = moneyAccountClient.addOrReduce(pma, "您邀请的 " + wu.getNickName() + " 完成订单结算，" + AccountEnum.CHANGE_TYPE_TGTC.getText() + "已入账");
 				if(pr.getCode() == 200 && pr.getData() == true){
 					log.info("发送推荐人入账请求成功，推荐人信息：" + pma.getTargetJson());
 				}else{
 					log.error("发送推荐人入账请求失败，推荐人信息：" + pma.getTargetJson());
 					log.error("发送推荐人入账请求失败，订单信息：" + JSON.toJSONString(or));
-				}
-				// 如果推荐人不是管理员，那么应该给管理员发送抽成收入，抽成收入=商品返现总计 - 用户返现 - 用户返现*推荐人提成
-				if(!pma.getWxUserId().equals(returnMoneyWxUserIdDefault)){
-					Double returnMoneyCc = or.getCommission() - or.getReturnMoney() - returnMoneyTc;
-					MoneyAccount adminMa = new MoneyAccount();
-					adminMa.setWxUserId(returnMoneyWxUserIdDefault);
-					adminMa.setChangeType(AccountEnum.CHANGE_TYPE_CCSY.getKey());
-					adminMa.setChangeMoney(CommonUtil.formatDouble(returnMoneyCc));
-					adminMa.setTargetJson(JSON.toJSONString(wu));
-					// 发送推荐人入账请求
-					String parentParentNikeName = "";
-					if(StringUtils.isNotBlank(wurmsVo.getParentWxUserNikeName())){
-						parentParentNikeName = wurmsVo.getParentWxUserNikeName();
-					}
-					if(wurmsVo.getParentWxUserId() != null){
-						parentParentNikeName += "(" + wurmsVo.getParentWxUserId() + ")";
-					}
-					R<Boolean> adminPr = moneyAccountClient.addOrReduce(adminMa, parentParentNikeName + "邀请的 " + wu.getNickName() + " 完成订单结算，" + AccountEnum.CHANGE_TYPE_CCSY.getText() + "已入账");
-					if(adminPr.getCode() == 200 && adminPr.getData() == true){
-						log.info("发送管理员抽成入账请求成功，推荐人信息：" + adminMa.getTargetJson());
-					}else{
-						log.error("发送管理员抽成入账请求失败，推荐人信息：" + adminMa.getTargetJson());
-						log.error("发送管理员抽成入账请求失败，订单信息：" + JSON.toJSONString(or));
-					}
 				}
 			}
 		}else{
@@ -456,7 +421,7 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 			}
 		}
 		// 获取返现比例
-		WxUserReturnMoneyScaleVo wurmsVo = getReturnScaleByWxUserId(wxUserId);
+		FxAndTcShareVo fatsVo = getUserFxAndTcShareByWxUserId(wxUserId);
 
 		List<OrderGoods> ogList = new ArrayList<>();
 		int skuArrayLength = skuArray.length;
@@ -478,12 +443,12 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 				og.setName(si.getSkuName());
 				og.setImageUrl(getGoodsImageUrlBySkuId(si.getSkuId().toString()));
 			}
-			og.setReturnScale(wurmsVo.getReturnScale());
+			og.setReturnScale(fatsVo.getFxShare());
 
 			double estimateFee = si.getEstimateFee();
 			orderEstimateFeeCount += estimateFee;
 			// 计算返现
-			Double returnMoney = CommonUtil.rebateCompute(estimateFee, wurmsVo.getReturnScale());
+			Double returnMoney = CommonUtil.rebateCompute(estimateFee, fatsVo.getFxShare());
 			orderReturnMoneyCount += returnMoney;
 
 			// 将商品添加到订单集合
@@ -500,9 +465,7 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 		orderRecord.setPlatform(OrderEnum.ORDER_PLATFORM_JD.getKey());
 
 		// 设置订单所属用户
-		orderRecord.setWxUserId(wurmsVo.getWxUserId());
-		// 设置订单所属租户
-		orderRecord.setTenantId(wurmsVo.getTenantId());
+		orderRecord.setWxUserId(wxUserId);
 
 		OrderRecordVo orVo = new OrderRecordVo();
 		BeanCopier copier = BeanCopier.create(OrderRecord.class, OrderRecordVo.class, false);
@@ -577,30 +540,31 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 	}
 
 	/**
-	 * 根据微信用户标识获取用户返现比例和推荐人租户ID
+	 * 根据用户标识获取返现和提成比例
 	 *
 	 * @param wxUserId 微信用户标识
 	 * @return
 	 */
-	private WxUserReturnMoneyScaleVo getReturnScaleByWxUserId(Long wxUserId){
-		log.info("根据商品扩展字段获取用户返现比例和推荐人租户ID，微信用户ID：" + wxUserId);
-		WxUserReturnMoneyScaleVo wurmsVo = new WxUserReturnMoneyScaleVo();
-		// 设置返现接受用户为系统缺省值
-		wurmsVo.setWxUserId(returnMoneyWxUserIdDefault);
-		// 设置返现比例为系统缺省值
-		wurmsVo.setReturnScale(systemReturnMoneyShareDefault);
-		// 设置提成比例为系统缺省值
-		wurmsVo.setParentReturnScaleTc(systemReturnMoneyShareTcDefault);
+	private FxAndTcShareVo getUserFxAndTcShareByWxUserId(Long wxUserId){
+		log.info("根据用户标识获取返现比例，微信用户ID：" + wxUserId);
+		FxAndTcShareVo fatsVo = new FxAndTcShareVo();
+		fatsVo.setFxShare(systemReturnMoneyShareDefault);
+		fatsVo.setTcShare(systemReturnMoneyShareTcDefault);
 		if(wxUserId == null){
-			log.info("根据商品扩展字段获取用户返现比例和推荐人租户ID，返现比例：" + JSON.toJSONString(wurmsVo));
-			return wurmsVo;
+			log.info("根据用户标识获取返现比例，结果：" + fatsVo.toString());
+			return fatsVo;
 		}
-		R<WxUserReturnMoneyScaleVo> wurmsVoR = wxUserClient.findWxUserReturnMoneyScaleVoById(wxUserId);
-		if(wurmsVoR.getCode() == 200 && wurmsVoR.getData().getWxUserId() != null){
-			return wurmsVoR.getData();
-		}else{
-			return wurmsVo;
+		R<WxUser> wxUserR = wxUserClient.findWxUserById(wxUserId);
+		if(wxUserR.getCode() == 200 && wxUserR.getData().getId() != null){
+			WxUser wu = wxUserR.getData();
+			if(wu.getReturnMoneyShare() > 0){
+				fatsVo.setFxShare(wu.getReturnMoneyShare());
+			}
+			if(wu.getReturnMoneyShareTc() > 0){
+				fatsVo.setTcShare(wu.getReturnMoneyShareTc());
+			}
 		}
+		return fatsVo;
 	}
 
 	/**

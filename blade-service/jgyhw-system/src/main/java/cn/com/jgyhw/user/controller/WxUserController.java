@@ -2,7 +2,6 @@ package cn.com.jgyhw.user.controller;
 
 import cn.com.jgyhw.user.entity.WxUser;
 import cn.com.jgyhw.user.service.IWxUserService;
-import cn.com.jgyhw.user.vo.WxUserReturnMoneyScaleVo;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -53,17 +52,6 @@ public class WxUserController {
 		}
 		WxUser wu = wxUserService.getById(wxUserId);
 		return R.data(wu);
-	}
-
-	/**
-	 * 根据微信用户标识获取返现/提成/收益比例、推荐人租户信息
-	 *
-	 * @param wxUserId 用户标识
-	 * @return
-	 */
-	@GetMapping("/findWxUserReturnMoneyScaleVoById")
-	public R<WxUserReturnMoneyScaleVo> findWxUserReturnMoneyScaleVoById(Long wxUserId){
-		return R.data(wxUserService.findWxUserReturnMoneyScaleVoById(wxUserId));
 	}
 
 	/**

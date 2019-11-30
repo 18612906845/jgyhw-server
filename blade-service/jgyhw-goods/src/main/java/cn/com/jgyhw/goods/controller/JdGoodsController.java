@@ -6,8 +6,8 @@ import cn.com.jgyhw.goods.service.IJdGoodsApiService;
 import cn.com.jgyhw.goods.service.IJdGoodsService;
 import cn.com.jgyhw.goods.service.IJdPositionService;
 import cn.com.jgyhw.goods.vo.JdGoodsVo;
+import cn.com.jgyhw.user.entity.WxUser;
 import cn.com.jgyhw.user.feign.IWxUserClient;
-import cn.com.jgyhw.user.vo.WxUserReturnMoneyScaleVo;
 import jd.union.open.promotion.common.get.request.PromotionCodeReq;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -119,12 +119,13 @@ public class JdGoodsController {
 		}
 		// 判断返现比例是否有填写
 		if(returnMoneyShare == null){
-			R<WxUserReturnMoneyScaleVo> wxUserReturnMoneyScaleVoR = wxUserClient.findWxUserReturnMoneyScaleVoById(Long.valueOf(wxUserId));
-			if(wxUserReturnMoneyScaleVoR.getCode() == 200 && wxUserReturnMoneyScaleVoR.getData() != null && wxUserReturnMoneyScaleVoR.getData().getWxUserId() != null){
-				WxUserReturnMoneyScaleVo wurmsVo = wxUserReturnMoneyScaleVoR.getData();
-				returnMoneyShare = wurmsVo.getReturnScale();
-			}else{
-				returnMoneyShare = systemReturnMoneyShareDefault;
+			returnMoneyShare = systemReturnMoneyShareDefault;
+			R<WxUser> wxUserR = wxUserClient.findWxUserById(Long.valueOf(wxUserId));
+			if(wxUserR.getCode() == 200 && wxUserR.getData().getId() != null){
+				WxUser wu = wxUserR.getData();
+				if(wu.getReturnMoneyShare() > 0){
+					returnMoneyShare = wu.getReturnMoneyShare();
+				}
 			}
 		}
 

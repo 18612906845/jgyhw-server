@@ -7,7 +7,10 @@ import cn.com.jgyhw.message.util.CheckoutUtil;
 import cn.com.jgyhw.message.util.WxGzhMessageUtil;
 import cn.com.jgyhw.message.vo.TemplateMessageVo;
 import cn.com.jgyhw.message.vo.TextMessageVo;
+import cn.com.jgyhw.user.entity.WxUser;
+import cn.com.jgyhw.user.enums.UserEnum;
 import cn.com.jgyhw.user.service.IWxUserService;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springblade.common.tool.CommonUtil;
@@ -23,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Wrapper;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -395,6 +399,11 @@ public class WxGzhMessageController {
 					return respXml;
 				} else if (eventType.equals(WxGzhMessageUtil.EVENT_TYPE_UNSUBSCRIBE)) {// 取消关注
 					log.info("用户取消关注");
+					WxUser wu = wxUserService.getOne(Wrappers.<WxUser>lambdaQuery().eq(WxUser::getOpenIdGzh, fromUserName));
+					if(wu != null){
+						wu.setStatus(UserEnum.WX_USER_STATUS_WZGZH.getKey());
+						wxUserService.updateById(wu);
+					}
 				} else if (eventType.equals(WxGzhMessageUtil.EVENT_TYPE_SCAN)) {// 扫描带参数二维码
 					String eventKey = (String) requestMap.get("EventKey");
 					log.info("二维码参数：" + eventKey);

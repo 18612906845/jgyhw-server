@@ -22,11 +22,6 @@ public class WxUser extends BaseEntity {
 	@TableId(value = "id", type = IdType.ID_WORKER)
     private Long id;
 
-	/**
-	 * 租户ID
-	 */
-	private String tenantId;
-
     /**
      * 用户在开放平台的唯一标识符
      */
@@ -48,11 +43,6 @@ public class WxUser extends BaseEntity {
     private String openIdPc;
 
     /**
-     * 会话密钥-小程序
-     */
-    private String sessionKeyXcx;
-
-    /**
      * 推荐人微信用户标识
      */
 	@JsonSerialize(using = ToStringSerializer.class)
@@ -67,16 +57,6 @@ public class WxUser extends BaseEntity {
 	 * 自定义用户提成比例，0为不自定义，使用租户定义提成比例
 	 */
 	private Integer returnMoneyShareTc;
-
-	/**
-	 * 租户所属用户默认返现比例
-	 */
-	private Integer tenantReturnMoneyShare;
-
-	/**
-	 * 租户所属用户默认提成比例
-	 */
-	private Integer tenantReturnMoneyShareTc;
 
     /**
      * 用户昵称

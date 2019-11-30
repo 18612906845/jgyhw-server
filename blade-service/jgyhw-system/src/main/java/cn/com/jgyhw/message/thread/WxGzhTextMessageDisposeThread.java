@@ -6,7 +6,6 @@ import cn.com.jgyhw.message.service.IWxGzhMessageService;
 import cn.com.jgyhw.message.vo.ArticleVo;
 import cn.com.jgyhw.user.entity.WxUser;
 import cn.com.jgyhw.user.service.IWxUserService;
-import cn.com.jgyhw.user.vo.WxUserReturnMoneyScaleVo;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -65,16 +64,15 @@ public class WxGzhTextMessageDisposeThread implements Runnable {
 		log.info("开启线程处理，商品编号：" + goodsId);
 		// 判断用户是否登录（是否有对应的UnionID）
 		WxUser wu = wxUserService.getOne(Wrappers.<WxUser>lambdaQuery().eq(WxUser::getOpenIdGzh, receiveGzhOpenId));
-		if(wu == null || wu.getId() == null || StringUtils.isBlank(wu.getUnionId())){// 无登录信息
-			// 调用消息发送接口，发送登陆链接文字消息
+		if(wu == null || wu.getId() == null || StringUtils.isBlank(wu.getUnionId())){
+			// 未登录，调用消息发送接口，发送登陆链接文字消息
 			wxGzhMessageService.sendTextMessage(receiveGzhOpenId, loginMessageContent);
 			log.info("用户【" + receiveGzhOpenId + "】未登录，发送登陆链接消息");
-		}else{// 有登陆信息
-			// 获取用户的返现比例
+		}else{
+			// 已登录，获取用户的返现比例
 			Integer returnMoneyShare = systemReturnMoneyShareDefault;
-			WxUserReturnMoneyScaleVo wurmsVo = wxUserService.findWxUserReturnMoneyScaleVoById(wu.getId());
-			if(wurmsVo != null && wurmsVo.getReturnScale() > 0){
-				returnMoneyShare = wurmsVo.getReturnScale();
+			if(wu.getReturnMoneyShare() > 0){
+				returnMoneyShare = wu.getReturnMoneyShare();
 			}
 			// 查询商品信息
 			R<JdGoodsVo> jdGoodsVoR = jdGoodsClient.findJdCpsInfoByKeyword(goodsId, String.valueOf(wu.getId()), returnMoneyShare);

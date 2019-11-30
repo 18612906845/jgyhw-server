@@ -2,9 +2,7 @@ package cn.com.jgyhw.user.feign;
 
 
 import cn.com.jgyhw.user.entity.WxUser;
-import cn.com.jgyhw.user.vo.WxUserReturnMoneyScaleVo;
 import org.springblade.common.constant.JgyhwConstant;
-import org.springblade.core.launch.constant.AppConstant;
 import org.springblade.core.tool.api.R;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,13 +38,4 @@ public interface IWxUserClient {
 	 */
 	@GetMapping(API_PREFIX + "/findWxUserById")
 	R<WxUser> findWxUserById(@RequestParam("wxUserId") Long wxUserId);
-
-	/**
-	 * 根据微信用户标识获取返现/提成/收益比例、推荐人租户信息
-	 *
-	 * @param wxUserId 用户标识
-	 * @return
-	 */
-	@GetMapping(API_PREFIX + "/findWxUserReturnMoneyScaleVoById")
-	R<WxUserReturnMoneyScaleVo> findWxUserReturnMoneyScaleVoById(@RequestParam("wxUserId") Long wxUserId);
 }
