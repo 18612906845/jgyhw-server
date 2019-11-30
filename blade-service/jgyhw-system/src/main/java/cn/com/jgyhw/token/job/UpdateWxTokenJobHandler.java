@@ -25,6 +25,7 @@ public class UpdateWxTokenJobHandler extends IJobHandler {
 	public ReturnT<String> execute(String s) throws Exception {
 		log.info("更新微信令牌-开始");
 		wxTokenService.timingUpdateWxGzhServiceApiToken();
+		wxTokenService.timingUpdateWxXcxServiceApiToken();
 		log.info("更新微信令牌-结束");
 		return SUCCESS;
 	}
