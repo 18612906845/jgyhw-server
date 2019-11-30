@@ -19,10 +19,7 @@ import org.springblade.core.tool.api.R;
 import org.springblade.core.tool.utils.CollectionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.beans.BeanCopier;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,7 +53,7 @@ public class MoneyAccountController {
 	 * @return
 	 */
 	@PostMapping("/addOrReduce")
-	public R<Boolean> addOrReduce(MoneyAccount moneyAccount, String describe){
+	public R<Boolean> addOrReduce(@RequestBody MoneyAccount moneyAccount, @RequestParam String describe){
 		Map<String, Object> resultMap = moneyAccountService.saveMoneyAccount(moneyAccount);
 		if(moneyAccount.getChangeMoney() <= 0){
 			log.info("流水变更小于等于0，不发送通知消息，流水账目对象：" + JSON.toJSONString(moneyAccount));

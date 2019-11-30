@@ -5,6 +5,7 @@ import org.springblade.common.constant.JgyhwConstant;
 import org.springblade.core.tool.api.R;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
@@ -28,5 +29,5 @@ public interface IMoneyAccountClient {
 	 * @return
 	 */
 	@PostMapping(API_PREFIX + "/addOrReduce")
-	R<Boolean> addOrReduce(@RequestParam("moneyAccount") MoneyAccount moneyAccount, @RequestParam("describe") String describe);
+	R<Boolean> addOrReduce(@RequestBody MoneyAccount moneyAccount, @RequestParam("describe") String describe);
 }

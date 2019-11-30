@@ -3,6 +3,7 @@ package cn.com.jgyhw.account.feign;
 import cn.com.jgyhw.account.entity.MoneyAccount;
 import org.springblade.core.tool.api.R;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
@@ -20,7 +21,7 @@ public class IMoneyAccountClientFallback implements IMoneyAccountClient {
 	 * @return
 	 */
 	@Override
-	public R<Boolean> addOrReduce(@RequestParam("moneyAccount") MoneyAccount moneyAccount, @RequestParam("describe") String describe) {
+	public R<Boolean> addOrReduce(@RequestBody MoneyAccount moneyAccount, @RequestParam("describe") String describe) {
 		return R.fail(400,"进/出账操作Feign失败");
 	}
 }
