@@ -49,6 +49,9 @@ public class WxPayServiceImpl implements IWxPayService {
 	@Value("${jgyhw.wxXcx.wxPayServerIp}")
 	private String wxPayServerIp;
 
+	@Value("${jgyhw.wxXcx.wxPayCertPath}")
+	private String certPath;
+
 	/**
 	 * 企业支付到微信零钱
 	 *
@@ -179,7 +182,7 @@ public class WxPayServiceImpl implements IWxPayService {
 		String certFilePath = request.getSession().getServletContext().getRealPath("/cert/apiclient_cert.p12");
 		try {
 			KeyStore keyStore  = KeyStore.getInstance("PKCS12");
-			FileInputStream instream = new FileInputStream(new File(certFilePath));
+			FileInputStream instream = new FileInputStream(new File(certPath));
 			keyStore.load(instream, WxXcxParamConstant.WX_PAY_BY_MCHID.toCharArray());
 			SSLContext sslcontext = SSLContexts.custom().loadKeyMaterial(keyStore, WxXcxParamConstant.WX_PAY_BY_MCHID.toCharArray()).build();
 			SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslcontext,new String[] { "TLSv1" },null,SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);

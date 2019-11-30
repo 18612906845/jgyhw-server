@@ -63,6 +63,11 @@ public class MoneyAccount extends BaseEntity {
 	private String targetJson;
 
 	/**
+	 * 根据条件值计算md5，避免重复
+	 */
+	private String md5;
+
+	/**
 	 * 支付时间
 	 */
 	private Date payTime;

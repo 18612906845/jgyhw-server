@@ -32,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springblade.common.constant.JdParamConstant;
 import org.springblade.common.tool.CommonUtil;
+import org.springblade.common.tool.MyMD5Util;
 import org.springblade.core.tool.api.R;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -346,6 +347,8 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 			ma.setChangeType(AccountEnum.CHANGE_TYPE_GWFX.getKey());
 			ma.setChangeMoney(or.getReturnMoney());
 			ma.setTargetJson(JSON.toJSONString(or));
+			String md5 = MyMD5Util.getMd5(ma.getWxUserId().toString() + or.getOrderId());
+			ma.setMd5(md5);
 			// 发送购买人入账请求
 			R<Boolean> r = moneyAccountClient.addOrReduce(ma, "订单（" + or.getOrderId() + "）完成审核，返现已入账");
 			if(r.getCode() == 200 && r.getData() == true){
@@ -369,6 +372,8 @@ public class JdOrderApiServiceImpl implements IJdOrderApiService {
 				pma.setChangeType(AccountEnum.CHANGE_TYPE_TGTC.getKey());
 				pma.setChangeMoney(returnMoneyTc);
 				pma.setTargetJson(JSON.toJSONString(wu));
+				String md52 = MyMD5Util.getMd5(pma.getWxUserId().toString() + or.getOrderId());
+				ma.setMd5(md52);
 				// 发送推荐人入账请求
 				R<Boolean> pr = moneyAccountClient.addOrReduce(pma, "您邀请的 " + wu.getNickName() + " 完成订单结算，" + AccountEnum.CHANGE_TYPE_TGTC.getText() + "已入账");
 				if(pr.getCode() == 200 && pr.getData() == true){

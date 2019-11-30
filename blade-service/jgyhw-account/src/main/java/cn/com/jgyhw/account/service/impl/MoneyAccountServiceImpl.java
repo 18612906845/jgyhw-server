@@ -8,6 +8,7 @@ import cn.com.jgyhw.account.service.IWxPayService;
 import cn.com.jgyhw.message.feign.IWxGzhMessageClient;
 import cn.com.jgyhw.user.entity.WxUser;
 import cn.com.jgyhw.user.feign.IWxUserClient;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springblade.common.tool.CommonUtil;
@@ -56,7 +57,7 @@ public class MoneyAccountServiceImpl extends BaseServiceImpl<MoneyAccountMapper,
 		}
 		if(moneyAccount.getChangeType().equals(AccountEnum.CHANGE_TYPE_YETX.getKey())){
 			resultMap = playUserWithdrawCash(moneyAccount);
-			if(moneyAccount.getPayStatus().equals(AccountEnum.PLAY_STATUS_YZF.getKey())){
+			if(moneyAccount.getPayStatus() != null && moneyAccount.getPayStatus().equals(AccountEnum.PLAY_STATUS_YZF.getKey())){
 				// 支付成功
 				balance -= moneyAccount.getChangeMoney();
 				returnMoneySum += moneyAccount.getChangeMoney();
@@ -68,8 +69,15 @@ public class MoneyAccountServiceImpl extends BaseServiceImpl<MoneyAccountMapper,
 		moneyAccount.setBalance(CommonUtil.formatDouble(balance));
 		moneyAccount.setReturnMoneySum(returnMoneySum);
 		moneyAccount.setCreateTime(new Date());
+		moneyAccount.setChangeTime(new Date());
 		moneyAccount.setUpdateTime(new Date());
-		int size = baseMapper.insert(moneyAccount);
+		int size = 0;
+		MoneyAccount oldMa = baseMapper.selectOne(Wrappers.<MoneyAccount>lambdaQuery().eq(MoneyAccount::getMd5, moneyAccount.getMd5()));
+		if(oldMa == null){
+			size = baseMapper.insert(moneyAccount);
+		}else{
+			size = 1;
+		}
 		if(size > 0){
 			resultMap.put("status", true);
 			resultMap.put("msg", "");
@@ -97,18 +105,6 @@ public class MoneyAccountServiceImpl extends BaseServiceImpl<MoneyAccountMapper,
 	 */
 	private Map<String, Object> playUserWithdrawCash(MoneyAccount moneyAccount){
 		Map<String, Object> resultMap = new HashMap<>();
-		//验证金额是否够
-		Double remainingMoney = 0D;
-		MoneyAccount ma = baseMapper.selectNewMoneyAccount(moneyAccount.getWxUserId());
-		if(ma != null){
-			remainingMoney = ma.getBalance();
-		}
-		if(moneyAccount.getChangeMoney() > remainingMoney){
-			resultMap.put("msg", "余额不足");
-			resultMap.put("status", false);
-			return resultMap;
-		}
-
 		// 查询用户信息
 		R<WxUser> wxUserR = wxUserClient.findWxUserById(moneyAccount.getWxUserId());
 		if(wxUserR.getCode() == 200 && wxUserR.getData() != null && StringUtils.isNotBlank(wxUserR.getData().getOpenIdXcx())){
@@ -137,7 +133,7 @@ public class MoneyAccountServiceImpl extends BaseServiceImpl<MoneyAccountMapper,
 						// 查询用户信息
 						if(StringUtils.isNotBlank(wu.getOpenIdGzh())){
 							// 发送消息
-							wxGzhMessageClient.sendRebateWxMessage(wu.getOpenIdGzh(), "", moneyAccount.getChangeMoney());
+							wxGzhMessageClient.sendPaySuccessWxMessage(wu.getOpenIdGzh(), moneyAccount.getChangeMoney(), new Date());
 						}
 					}
 					resultMap.put("status", true);

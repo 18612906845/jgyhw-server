@@ -4,6 +4,7 @@ import cn.com.jgyhw.account.entity.MoneyAccount;
 import cn.com.jgyhw.account.enums.AccountEnum;
 import cn.com.jgyhw.account.service.IMoneyAccountService;
 import cn.com.jgyhw.account.vo.MoneyAccountVo;
+import cn.com.jgyhw.account.vo.PayResultVo;
 import cn.com.jgyhw.message.feign.IWxGzhMessageClient;
 import cn.com.jgyhw.user.entity.WxUser;
 import cn.com.jgyhw.user.feign.IWxUserClient;
@@ -13,6 +14,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springblade.common.tool.MyMD5Util;
 import org.springblade.core.mp.support.Condition;
 import org.springblade.core.mp.support.Query;
 import org.springblade.core.tool.api.R;
@@ -54,18 +56,25 @@ public class MoneyAccountController {
 	 */
 	@PostMapping("/addOrReduce")
 	public R<Boolean> addOrReduce(@RequestBody MoneyAccount moneyAccount, @RequestParam String describe){
+		MoneyAccount oldMa = moneyAccountService.getOne(Wrappers.<MoneyAccount>lambdaQuery().eq(MoneyAccount::getMd5, moneyAccount.getMd5()));
+		if(oldMa != null){
+			return R.data(true);
+		}
 		Map<String, Object> resultMap = moneyAccountService.saveMoneyAccount(moneyAccount);
-		if(moneyAccount.getChangeMoney() <= 0){
-			log.info("流水变更小于等于0，不发送通知消息，流水账目对象：" + JSON.toJSONString(moneyAccount));
-			return R.data((boolean)resultMap.get("status"));
+		boolean status = (boolean)resultMap.get("status");
+		if(status){
+			if(moneyAccount.getChangeMoney() <= 0){
+				log.info("流水变更小于等于0，不发送通知消息，流水账目对象：" + JSON.toJSONString(moneyAccount));
+				return R.data(status);
+			}
+			// 查询用户信息
+			R<WxUser> wxUserR = wxUserClient.findWxUserById(moneyAccount.getWxUserId());
+			if(wxUserR.getCode() == 200 && wxUserR.getData() != null && StringUtils.isNotBlank(wxUserR.getData().getOpenIdGzh())){
+				// 发送消息
+				wxGzhMessageClient.sendRebateWxMessage(wxUserR.getData().getOpenIdGzh(), describe, moneyAccount.getChangeMoney());
+			}
 		}
-		// 查询用户信息
-		R<WxUser> wxUserR = wxUserClient.findWxUserById(moneyAccount.getWxUserId());
-		if(wxUserR.getCode() == 200 && wxUserR.getData() != null && StringUtils.isNotBlank(wxUserR.getData().getOpenIdGzh())){
-			// 发送消息
-			wxGzhMessageClient.sendRebateWxMessage(wxUserR.getData().getOpenIdGzh(), describe, moneyAccount.getChangeMoney());
-		}
-		return R.data((boolean)resultMap.get("status"));
+		return R.data(status);
 	}
 
 	/**
@@ -107,23 +116,37 @@ public class MoneyAccountController {
 	 * @return
 	 */
 	@GetMapping("/applyWithdrawCash")
-	public R<Map<String, Object>> applyWithdrawCash(Long loginKey, Double money){
-		Map<String, Object> resultMap = new HashMap<>();
-		resultMap.put("status", false);
-		resultMap.put("msg", "未知错误");
-
+	public R<PayResultVo> applyWithdrawCash(Long loginKey, Double money){
+		PayResultVo prVo = new PayResultVo();
+		prVo.setStatus(false);
+		prVo.setMsg("未知错误");
 		//判断取现金额是否正确
 		if(money == null || money < 1){
-			resultMap.put("msg", "1元起提");
-			return R.data(resultMap);
+			prVo.setMsg("1元起提");
+			return R.data(prVo);
+		}
+		//验证金额是否够
+		Double remainingMoney = 0D;
+		MoneyAccount ma = moneyAccountService.queryNewMoneyAccount(loginKey);
+		if(ma != null){
+			remainingMoney = ma.getBalance();
+		}
+		if(money > remainingMoney){
+			prVo.setStatus(false);
+			prVo.setMsg("余额不足");
+			return R.data(prVo);
 		}
 		// 保存出账操作
 		MoneyAccount playMa = new MoneyAccount();
 		playMa.setWxUserId(loginKey);
 		playMa.setChangeType(AccountEnum.CHANGE_TYPE_YETX.getKey());
 		playMa.setChangeMoney(money);
-		resultMap = moneyAccountService.saveMoneyAccount(playMa);
-		return R.data(resultMap);
+		String md5 = MyMD5Util.getMd5(loginKey.toString() + money + System.currentTimeMillis());
+		playMa.setMd5(md5);
+		Map<String, Object> resultMap = moneyAccountService.saveMoneyAccount(playMa);
+		prVo.setMsg((String)resultMap.get("msg"));
+		prVo.setStatus((boolean)resultMap.get("status"));
+		return R.data(prVo);
 	}
 
 	/**
