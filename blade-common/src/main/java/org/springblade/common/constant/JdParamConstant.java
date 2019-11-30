@@ -61,4 +61,19 @@ public interface JdParamConstant {
 	 * 推广链接类型-小程序
 	 */
 	String SPS_TYPE_XCX = "xcx";
+
+	/**
+	 * 京东订单查询时间类型-下单时间
+	 */
+	Integer JD_ORDER_QUERY_TIME_TYPE_XDSJ = 1;
+
+	/**
+	 * 京东订单查询时间类型-完成时间
+	 */
+	Integer JD_ORDER_QUERY_TIME_TYPE_WCSJ = 2;
+
+	/**
+	 * 京东订单查询时间类型-更新时间
+	 */
+	Integer JD_ORDER_QUERY_TIME_TYPE_GXSJ = 3;
 }
