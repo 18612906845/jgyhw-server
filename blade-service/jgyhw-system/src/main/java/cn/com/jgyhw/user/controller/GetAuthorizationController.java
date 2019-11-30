@@ -7,7 +7,6 @@ import cn.com.jgyhw.user.service.IWxXcxSessionKeyService;
 import cn.com.jgyhw.user.util.WxXcxUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springblade.common.constant.WxGzhParamConstant;
@@ -36,7 +35,6 @@ import java.util.Map;
 @RefreshScope
 @Controller
 @RequestMapping("/getAuthorization")
-@Api(value = "获取授权，取得用户信息", tags = "获取授权，取得用户信息")
 public class GetAuthorizationController {
 
 	@Value("${jgyhw.wxGzh.appId:}")

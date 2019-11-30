@@ -18,17 +18,12 @@ package org.springblade.gateway.config;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springblade.gateway.handler.SwaggerResourceHandler;
 import org.springblade.gateway.props.AuthProperties;
 import org.springblade.gateway.props.RouteProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.MediaType;
 import org.springframework.web.filter.reactive.HiddenHttpMethodFilter;
-import org.springframework.web.reactive.function.server.RequestPredicates;
-import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
@@ -43,15 +38,6 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 @EnableConfigurationProperties({RouteProperties.class, AuthProperties.class})
 public class RouterFunctionConfiguration {
-
-	private final SwaggerResourceHandler swaggerResourceHandler;
-
-	@Bean
-	public RouterFunction routerFunction() {
-		return RouterFunctions.route(RequestPredicates.GET("/swagger-resources")
-			.and(RequestPredicates.accept(MediaType.ALL)), swaggerResourceHandler);
-
-	}
 
 	/**
 	 * 解决springboot2.0.5版本出现的 Only one connection receive subscriber allowed.

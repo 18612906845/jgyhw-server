@@ -2,10 +2,6 @@ package cn.com.jgyhw.goods.controller;
 
 import cn.com.jgyhw.goods.entity.JdPosition;
 import cn.com.jgyhw.goods.service.IJdPositionService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiOperationSupport;
-import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springblade.core.tool.api.R;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequestMapping("/jdPosition")
-@Api(value = "京东推广位", tags = "京东推广位")
 public class JdPositionController {
 
 	@Autowired
@@ -34,9 +29,7 @@ public class JdPositionController {
 	 * @return
 	 */
 	@GetMapping("/findJdPositionByPositionId")
-	@ApiOperationSupport(order = 1)
-	@ApiOperation(value = "根据京东推广位ID查询京东推广位", notes = "")
-	public R<JdPosition> findJdPositionByPositionId(@ApiParam(value = "推广位ID", required = true) Long positionId){
+	public R<JdPosition> findJdPositionByPositionId(Long positionId){
 		if(positionId == null){
 			return R.data(null);
 		}

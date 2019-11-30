@@ -1,17 +1,13 @@
 package cn.com.jgyhw.goods.controller;
 
+import cn.com.jgyhw.goods.entity.JdGoods;
+import cn.com.jgyhw.goods.entity.JdPosition;
 import cn.com.jgyhw.goods.service.IJdGoodsApiService;
 import cn.com.jgyhw.goods.service.IJdGoodsService;
 import cn.com.jgyhw.goods.service.IJdPositionService;
-import cn.com.jgyhw.goods.entity.JdGoods;
-import cn.com.jgyhw.goods.entity.JdPosition;
 import cn.com.jgyhw.goods.vo.JdGoodsVo;
 import cn.com.jgyhw.user.feign.IWxUserClient;
 import cn.com.jgyhw.user.vo.WxUserReturnMoneyScaleVo;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiOperationSupport;
-import io.swagger.annotations.ApiParam;
 import jd.union.open.promotion.common.get.request.PromotionCodeReq;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -38,7 +34,6 @@ import java.util.regex.Pattern;
 @RefreshScope
 @RestController
 @RequestMapping("/jdGoods")
-@Api(value = "京东商品", tags = "京东商品")
 public class JdGoodsController {
 
 	@Value("${jgyhw.jd.regexpAllNumber}")
@@ -72,9 +67,7 @@ public class JdGoodsController {
 	 * @return
 	 */
 	@GetMapping("/findJdGoodsImgUrl")
-	@ApiOperationSupport(order = 1)
-	@ApiOperation(value = "根据京东商品编号获取商品主图地址", notes = "")
-	public R<String> findJdGoodsImgUrl(@ApiParam(value = "商品编号", required = true) String goodsId){
+	public R<String> findJdGoodsImgUrl(String goodsId){
 		JdGoods jdGoods = jdGoodsApiService.reqJdApiGetJdGoodsByGoodsId(goodsId, null);
 		String goodsImgUrl = null;
 		if(jdGoods != null){
@@ -90,9 +83,7 @@ public class JdGoodsController {
 	 * @return
 	 */
 	@GetMapping("/findJdGoodsCacheByGoodsId")
-	@ApiOperationSupport(order = 2)
-	@ApiOperation(value = "根据京东商品编号查询商品信息（缓存）", notes = "")
-	public R<JdGoods> findJdGoodsCacheByGoodsId(@ApiParam(value = "商品编号", required = true) String goodsId){
+	public R<JdGoods> findJdGoodsCacheByGoodsId(String goodsId){
 		JdGoods jdGoods = jdGoodsServiceRedis.queryJdGoodsByGoodsId(goodsId);
 		return R.data(jdGoods);
 	}

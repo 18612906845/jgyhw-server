@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springblade.core.mp.base.BaseEntity;
 
@@ -23,7 +22,6 @@ public class WxXcxSessionKey extends BaseEntity {
 	 */
 	@JsonSerialize(using = ToStringSerializer.class)
 	@TableId(value = "id", type = IdType.ID_WORKER)
-	@ApiModelProperty(value = "主键id")
 	private Long id;
 
 	/**

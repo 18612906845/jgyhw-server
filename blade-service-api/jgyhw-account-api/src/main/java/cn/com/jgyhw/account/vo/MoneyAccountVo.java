@@ -16,4 +16,14 @@ public class MoneyAccountVo extends MoneyAccount {
 	 */
 	private String changeTypeName;
 
+	/**
+	 * 主体图片名称
+	 */
+	private String targetImageName;
+
+	/**
+	 * 主体名称
+	 */
+	private String targetName;
+
 }

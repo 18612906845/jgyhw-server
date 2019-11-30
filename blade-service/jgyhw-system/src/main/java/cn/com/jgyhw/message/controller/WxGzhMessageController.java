@@ -8,9 +8,6 @@ import cn.com.jgyhw.message.util.WxGzhMessageUtil;
 import cn.com.jgyhw.message.vo.TemplateMessageVo;
 import cn.com.jgyhw.message.vo.TextMessageVo;
 import cn.com.jgyhw.user.service.IWxUserService;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiOperationSupport;
-import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springblade.common.tool.CommonUtil;
@@ -93,8 +90,6 @@ public class WxGzhMessageController {
 	 * @throws IOException
 	 */
 	@RequestMapping("/receiveMessage")
-	@ApiOperationSupport(order = 1)
-	@ApiOperation(value = "接收微信公众号消息", notes = "")
 	public void receiveWxMessage(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		log.info("接收微信公众号消息开始--> 开始时间毫秒：" + System.currentTimeMillis());
 		boolean isGet = request.getMethod().toLowerCase().equals("get");
@@ -141,10 +136,7 @@ public class WxGzhMessageController {
 	 * @return
 	 */
 	@GetMapping("/sendTextMessage")
-	@ApiOperationSupport(order = 2)
-	@ApiOperation(value = "发送文本消息", notes = "")
-	public R sendTextMessage(@ApiParam(value = "商品编号", required = true) String toUser,
-							 @ApiParam(value = "商品编号", required = true) String content){
+	public R sendTextMessage(String toUser, String content){
 		wxGzhMessageService.sendTextMessage(toUser, content);
 		return R.status(true);
 	}
@@ -158,11 +150,7 @@ public class WxGzhMessageController {
 	 * @return
 	 */
 	@GetMapping("/sendAffirmOrderWxMessage")
-	@ApiOperationSupport(order = 3)
-	@ApiOperation(value = "发送模版消息到公众号", notes = "")
-	public R sendAffirmOrderWxMessage(@ApiParam(value = "微信用户公众号标识", required = true) String openIdGzh,
-									  @ApiParam(value = "订单编号", required = true) String orderId,
-									  @ApiParam(value = "订单状态", required = true) String orderStatus){
+	public R sendAffirmOrderWxMessage(String openIdGzh, String orderId, String orderStatus){
 		TemplateMessageVo tmVo = new TemplateMessageVo();
 
 		tmVo.setTouser(openIdGzh);
@@ -201,11 +189,7 @@ public class WxGzhMessageController {
 	 * @param orderFinishTime 订单完成时间
 	 */
 	@GetMapping("/sendFinishOrderWxMessage")
-	@ApiOperationSupport(order = 4)
-	@ApiOperation(value = "发送完成订单微信消息", notes = "")
-	public R sendFinishOrderWxMessage(@ApiParam(value = "微信用户公众号标识", required = true) String openIdGzh,
-									  @ApiParam(value = "订单编号", required = true) String orderId,
-									  @ApiParam(value = "订单完成时间", required = true) Date orderFinishTime){
+	public R sendFinishOrderWxMessage(String openIdGzh, String orderId, Date orderFinishTime){
 		TemplateMessageVo tmVo = new TemplateMessageVo();
 		tmVo.setTouser(openIdGzh);
 		tmVo.setTemplate_id(wxGzhTemplateMessageIdDdwc);
@@ -238,11 +222,7 @@ public class WxGzhMessageController {
 	 * @param returnMoney 返现金额
 	 */
 	@GetMapping("/sendRebateWxMessage")
-	@ApiOperationSupport(order = 5)
-	@ApiOperation(value = "发送获得返现微信消息", notes = "")
-	public R sendRebateWxMessage(@ApiParam(value = "微信用户公众号标识", required = true) String openIdGzh,
-								 @ApiParam(value = "返现原因", required = true) String returnMoneyCause,
-								 @ApiParam(value = "返现金额", required = true) double returnMoney){
+	public R sendRebateWxMessage(String openIdGzh, String returnMoneyCause, double returnMoney){
 		TemplateMessageVo tmVo = new TemplateMessageVo();
 		tmVo.setTouser(openIdGzh);
 		tmVo.setTemplate_id(wxGzhTemplateMessageIdHdfx);
@@ -280,11 +260,7 @@ public class WxGzhMessageController {
 	 * @param payTime 支付时间
 	 */
 	@GetMapping("/sendPaySuccessWxMessage")
-	@ApiOperationSupport(order = 6)
-	@ApiOperation(value = "发送支付成功消息", notes = "")
-	public R sendPaySuccessWxMessage(@ApiParam(value = "微信用户公众号标识", required = true) String openIdGzh,
-									 @ApiParam(value = "支付金额", required = true) Double payMoney,
-									 @ApiParam(value = "支付时间", required = true) Date payTime){
+	public R sendPaySuccessWxMessage(String openIdGzh, Double payMoney, Date payTime){
 		TemplateMessageVo tmVo = new TemplateMessageVo();
 		tmVo.setTouser(openIdGzh);
 		tmVo.setTemplate_id(wxGzhTemplateMessageIdTxcg);

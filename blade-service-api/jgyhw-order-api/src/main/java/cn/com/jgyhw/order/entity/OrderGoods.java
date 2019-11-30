@@ -5,12 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springblade.core.mp.base.BaseEntity;
-
-import java.util.Date;
 
 /**
  * 订单商品
@@ -19,7 +15,6 @@ import java.util.Date;
  */
 @Data
 @TableName("jgyhw_order_goods")
-@ApiModel(description = "订单商品")
 public class OrderGoods extends BaseEntity {
 
 	/**
@@ -27,37 +22,31 @@ public class OrderGoods extends BaseEntity {
 	 */
 	@JsonSerialize(using = ToStringSerializer.class)
 	@TableId(value = "og_id", type = IdType.ID_WORKER)
-	@ApiModelProperty(value = "标识")
 	private Long ogId;
 
 	/**
 	 * 商品编号
 	 */
-	@ApiModelProperty(value = "商品编号")
 	private String code;
 
 	/**
 	 * 商品名称
 	 */
-	@ApiModelProperty(value = "商品名称")
 	private String name;
 
 	/**
 	 * 商品图片地址
 	 */
-	@ApiModelProperty(value = "商品图片地址")
 	private String imageUrl;
 
 	/**
 	 * 订单记录标识
 	 */
 	@JsonSerialize(using = ToStringSerializer.class)
-	@ApiModelProperty(value = "订单记录标识")
 	private Long orderRecordId;
 
 	/**
 	 * 返现比例
 	 */
-	@ApiModelProperty(value = "返现比例")
 	private Integer returnScale;
 }

@@ -8,12 +8,9 @@ import cn.com.jgyhw.message.feign.IWxGzhMessageClient;
 import cn.com.jgyhw.user.entity.WxUser;
 import cn.com.jgyhw.user.feign.IWxUserClient;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiOperationSupport;
-import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springblade.core.mp.support.Condition;
@@ -22,8 +19,10 @@ import org.springblade.core.tool.api.R;
 import org.springblade.core.tool.utils.CollectionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.beans.BeanCopier;
-import org.springframework.cloud.context.config.annotation.RefreshScope;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,7 +37,6 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("/moneyAccount")
-@Api(value = "流水账目", tags = "流水账目")
 public class MoneyAccountController {
 
 	@Autowired
@@ -58,9 +56,7 @@ public class MoneyAccountController {
 	 * @return
 	 */
 	@PostMapping("/addOrReduce")
-	@ApiOperationSupport(order = 1)
-	@ApiOperation(value = "进/出账操作", notes = "")
-	public R<Boolean> addOrReduce(MoneyAccount moneyAccount, @ApiParam(value = "操作描述", required = true) String describe){
+	public R<Boolean> addOrReduce(MoneyAccount moneyAccount, String describe){
 		Map<String, Object> resultMap = moneyAccountService.saveMoneyAccount(moneyAccount);
 		if(moneyAccount.getChangeMoney() <= 0){
 			log.info("流水变更小于等于0，不发送通知消息，流水账目对象：" + JSON.toJSONString(moneyAccount));
@@ -104,24 +100,7 @@ public class MoneyAccountController {
 	@GetMapping("/findMoneyAccountByPage")
 	public R<Map<String, Object>> findMoneyAccountByPage(Long loginKey, Query query){
 		IPage<MoneyAccount> page = moneyAccountService.page(Condition.getPage(query), Wrappers.<MoneyAccount>lambdaQuery().eq(MoneyAccount::getWxUserId, loginKey).orderByDesc(MoneyAccount::getCreateTime));
-		Map<String, Object> resultMap = new HashMap<>();
-		resultMap.put("isMore", false);
-		resultMap.put("recordList", new ArrayList<>());
-
-		if(page != null && CollectionUtil.isNotEmpty(page.getRecords())){
-			resultMap.put("isMore", query.getCurrent() * query.getSize() < page.getTotal());
-
-			List<MoneyAccountVo> maVoList = new ArrayList<>();
-			for(MoneyAccount ma : page.getRecords()){
-				MoneyAccountVo maVo = new MoneyAccountVo();
-				BeanCopier copier = BeanCopier.create(MoneyAccount.class, MoneyAccountVo.class, false);
-				copier.copy(ma, maVo, null);
-				maVo.setChangeTypeName(changeTypeToChanageTypeName(ma.getChangeType()));
-				maVoList.add(maVo);
-			}
-			resultMap.put("recordList", maVoList);
-		}
-		return R.data(resultMap);
+		return R.data(moneyAccountToVo(page, query));
 	}
 
 	/**
@@ -160,6 +139,17 @@ public class MoneyAccountController {
 	@RequestMapping("/findWithdrawCashRecordListByWxUserIdPage")
 	public R<Map<String, Object>> findWithdrawCashRecordListByWxUserIdPage(Long loginKey, Query query){
 		IPage<MoneyAccount> page = moneyAccountService.page(Condition.getPage(query), Wrappers.<MoneyAccount>lambdaQuery().eq(MoneyAccount::getWxUserId, loginKey).eq(MoneyAccount::getChangeType, AccountEnum.CHANGE_TYPE_YETX.getKey()).orderByDesc(MoneyAccount::getCreateTime));
+		return R.data(moneyAccountToVo(page, query));
+	}
+
+	/**
+	 * 流水账目分页记录装换
+	 *
+	 * @param page 分页对象
+	 * @param query 查询参数对象
+	 * @return
+	 */
+	private Map<String, Object> moneyAccountToVo(IPage<MoneyAccount> page, Query query){
 		Map<String, Object> resultMap = new HashMap<>();
 		resultMap.put("isMore", false);
 		resultMap.put("recordList", new ArrayList<>());
@@ -172,12 +162,35 @@ public class MoneyAccountController {
 				MoneyAccountVo maVo = new MoneyAccountVo();
 				BeanCopier copier = BeanCopier.create(MoneyAccount.class, MoneyAccountVo.class, false);
 				copier.copy(ma, maVo, null);
-				maVo.setChangeTypeName(changeTypeToChanageTypeName(ma.getChangeType()));
+				maVo.setChangeTypeName(changeTypeToName(ma.getChangeType()));
+				// 根据流水类型
+				if(ma.getChangeType().equals(AccountEnum.CHANGE_TYPE_GWFX.getKey())){
+					// 购物返现
+					maVo.setTargetImageName("icon_rzjl_jd.jpg");
+					if(StringUtils.isNotBlank(ma.getTargetJson())){
+						JSONObject targetJson = JSON.parseObject(ma.getTargetJson());
+						maVo.setTargetName(targetJson.getString("orderId"));
+					}
+				}else if(ma.getChangeType().equals(AccountEnum.CHANGE_TYPE_YETX.getKey())){
+					// 余额提现
+					maVo.setTargetImageName("icon_txjl.jpg");
+					String targetName = playStatusToName(ma.getPayStatus());
+					if(ma.getPayStatus() != null && ma.getPayStatus().equals(AccountEnum.PLAY_STATUS_ZFSB.getKey())){
+						targetName += "；请联系客服处理";
+					}
+					maVo.setTargetName(targetName);
+				}else{
+					if(StringUtils.isNotBlank(ma.getTargetJson())){
+						JSONObject targetJson = JSON.parseObject(ma.getTargetJson());
+						maVo.setTargetImageName(targetJson.getString("headImgUrl"));
+						maVo.setTargetName(targetJson.getString("nickName"));
+					}
+				}
 				maVoList.add(maVo);
 			}
 			resultMap.put("recordList", maVoList);
 		}
-		return R.data(resultMap);
+		return resultMap;
 	}
 
 	/**
@@ -186,7 +199,7 @@ public class MoneyAccountController {
 	 * @param changeType 变更类型编码
 	 * @return
 	 */
-	private String changeTypeToChanageTypeName(Integer changeType){
+	private String changeTypeToName(Integer changeType){
 		if(changeType.equals(AccountEnum.CHANGE_TYPE_GWFX.getKey())){
 			return AccountEnum.CHANGE_TYPE_GWFX.getText();
 		}
@@ -204,6 +217,28 @@ public class MoneyAccountController {
 		}
 		if(changeType.equals(AccountEnum.CHANGE_TYPE_CCSY.getKey())){
 			return AccountEnum.CHANGE_TYPE_CCSY.getText();
+		}
+		return "";
+	}
+
+	/**
+	 * 支付状态编码转名称
+	 *
+	 * @param playStatus 支付状态
+	 * @return
+	 */
+	private String playStatusToName(Integer playStatus){
+		if(playStatus == null){
+			return "";
+		}
+		if(playStatus.equals(AccountEnum.PLAY_STATUS_DZF.getKey())){
+			return AccountEnum.PLAY_STATUS_DZF.getText();
+		}
+		if(playStatus.equals(AccountEnum.PLAY_STATUS_YZF.getKey())){
+			return AccountEnum.PLAY_STATUS_YZF.getText();
+		}
+		if(playStatus.equals(AccountEnum.PLAY_STATUS_ZFSB.getKey())){
+			return AccountEnum.PLAY_STATUS_ZFSB.getText();
 		}
 		return "";
 	}
