@@ -86,7 +86,7 @@ public class WxGzhTextMessageDisposeThread implements Runnable {
 					// 发送优惠图文消息
 					List<ArticleVo> avs = new ArrayList<>();
 					ArticleVo av = new ArticleVo();
-					av.setTitle("约返现:" + jgVo.getReturnMoney() + "元" + ";编号:" + jgVo.getGoodsId());
+					av.setTitle("原价购买约返现:" + jgVo.getReturnMoney() + "元");
 					av.setDescription(jgVo.getGoodsName());
 					av.setPicUrl(jgVo.getGoodsImgUrl());
 					av.setUrl(jgVo.getCpsUrl());
