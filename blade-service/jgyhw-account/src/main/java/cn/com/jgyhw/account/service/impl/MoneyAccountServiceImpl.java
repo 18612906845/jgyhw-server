@@ -67,7 +67,7 @@ public class MoneyAccountServiceImpl extends BaseServiceImpl<MoneyAccountMapper,
 			balance = balance + moneyAccount.getChangeMoney();
 		}
 		moneyAccount.setBalance(CommonUtil.formatDouble(balance));
-		moneyAccount.setReturnMoneySum(returnMoneySum);
+		moneyAccount.setReturnMoneySum(CommonUtil.formatDouble(returnMoneySum));
 		moneyAccount.setCreateTime(new Date());
 		moneyAccount.setChangeTime(new Date());
 		moneyAccount.setUpdateTime(new Date());
@@ -119,14 +119,17 @@ public class MoneyAccountServiceImpl extends BaseServiceImpl<MoneyAccountMapper,
 			moneyAccount.setPayTime(new Date());
 			moneyAccount.setPartnerTradeNo(partnerTradeNo);
 
-			if(payResultMap == null){//解析XML错误
+			if(payResultMap == null){
+				// 解析XML错误
 				moneyAccount.setPayStatus(AccountEnum.PLAY_STATUS_YZF.getKey());
 				log.error("支付结果XML解析失败，商户订单号：" + partnerTradeNo + "；微信小程序OpenId：" + wu.getOpenIdXcx());
 
 				resultMap.put("status", true);
 				resultMap.put("msg", "支付成功");
 			}else{
-				if("SUCCESS".equals(payResultMap.get("result_code"))){//支付成功
+				// 解析XML成功
+				if("SUCCESS".equals(payResultMap.get("result_code"))){
+					// 支付成功
 					moneyAccount.setPayStatus(AccountEnum.PLAY_STATUS_YZF.getKey());
 					moneyAccount.setPaymentNo(payResultMap.get("payment_no"));
 					if(moneyAccount.getChangeMoney() >= 0){
@@ -138,7 +141,8 @@ public class MoneyAccountServiceImpl extends BaseServiceImpl<MoneyAccountMapper,
 					}
 					resultMap.put("status", true);
 					resultMap.put("msg", "支付成功");
-				}else{//支付失败
+				}else{
+					// 支付失败
 					moneyAccount.setPayStatus(AccountEnum.PLAY_STATUS_ZFSB.getKey());
 					moneyAccount.setErrCode(payResultMap.get("err_code"));
 					moneyAccount.setErrCodeDes(payResultMap.get("err_code_des"));
