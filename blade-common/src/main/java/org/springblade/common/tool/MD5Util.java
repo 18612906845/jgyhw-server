@@ -1,5 +1,9 @@
 package org.springblade.common.tool;
 
+import io.micrometer.core.instrument.util.StringUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.springblade.common.constant.CommonConstant;
+
 import java.security.MessageDigest;
 
 /**
@@ -7,14 +11,21 @@ import java.security.MessageDigest;
  *
  * Created by WangLei on 2019/11/30 0030 22:16
  */
-public class MyMD5Util {
+@Slf4j
+public class MD5Util {
 
-	//盐，用于混交md5
-	private static final String SLAT = "!qazxcde32";
-
-	public static String getMd5(String dataStr) {
+	/**
+	 * 获取MD5值
+	 *
+	 * @param dataStr
+	 * @return
+	 */
+	public static String stringToMD5(String dataStr) {
+		if(StringUtils.isBlank(dataStr)){
+			return "";
+		}
 		try {
-			dataStr = dataStr + SLAT;
+			dataStr = dataStr + CommonConstant.MD5_SALT;
 			MessageDigest m = MessageDigest.getInstance("MD5");
 			m.update(dataStr.getBytes("UTF8"));
 			byte s[] = m.digest();
@@ -22,9 +33,9 @@ public class MyMD5Util {
 			for (int i = 0; i < s.length; i++) {
 				result += Integer.toHexString((0x000000FF & s[i]) | 0xFFFFFF00).substring(6);
 			}
-			return result;
+			return result.toUpperCase();
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("MD5加密计算异常", e);
 		}
 		return "";
 	}

@@ -8,29 +8,14 @@ package org.springblade.common.constant;
 public interface CommonConstant {
 
 	/**
-	 * sword 系统名
+	 * MD5加密，盐
 	 */
-	String SWORD_NAME = "sword";
+	String MD5_SALT = "!qazxcde32";
 
 	/**
-	 * saber 系统名
+	 * 鉴权随机值Redis Key前缀
 	 */
-	String SABER_NAME = "saber";
+	String AUTH_NONCE_KEY_PREFIX = "authNonce:";
 
-	/**
-	 * 顶级父节点id
-	 */
-	Integer TOP_PARENT_ID = 0;
-
-	/**
-	 * 顶级父节点名称
-	 */
-	String TOP_PARENT_NAME = "顶级";
-
-
-	/**
-	 * 默认密码
-	 */
-	String DEFAULT_PASSWORD = "123456";
 
 }

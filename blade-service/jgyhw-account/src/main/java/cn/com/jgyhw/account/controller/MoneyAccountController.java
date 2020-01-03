@@ -14,7 +14,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springblade.common.tool.MyMD5Util;
+import org.springblade.common.tool.MD5Util;
 import org.springblade.core.mp.support.Condition;
 import org.springblade.core.mp.support.Query;
 import org.springblade.core.tool.api.R;
@@ -141,7 +141,7 @@ public class MoneyAccountController {
 		playMa.setWxUserId(loginKey);
 		playMa.setChangeType(AccountEnum.CHANGE_TYPE_YETX.getKey());
 		playMa.setChangeMoney(money);
-		String md5 = MyMD5Util.getMd5(loginKey.toString() + money + System.currentTimeMillis());
+		String md5 = MD5Util.stringToMD5(loginKey.toString() + money + System.currentTimeMillis());
 		playMa.setMd5(md5);
 		Map<String, Object> resultMap = moneyAccountService.saveMoneyAccount(playMa);
 		prVo.setMsg((String)resultMap.get("msg"));
